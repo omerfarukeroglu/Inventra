@@ -1,0 +1,50 @@
+name: inventra
+description: "INVENTRA - Your Personal Inventory Manager"
+publish_to: 'none'
+
+version: 3.0.1+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.2
+  shared_preferences: ^2.2.2
+  qr_flutter: ^4.1.0
+  path_provider: ^2.1.1
+  gal: ^2.3.0
+  permission_handler: ^12.0.1
+  mobile_scanner: ^7.1.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+flutter_launcher_icons:
+  # Android Configuration
+  android: "ic_launcher"
+  image_path_android: "assets/images/InventraLogoAndroid.png"
+  adaptive_icon_foreground: "assets/images/InventraLogoAndroid.png"
+  adaptive_icon_background: "#2d2d2d"
+  min_sdk_android: 21
+  
+  # iOS Configuration  
+  ios: true
+  image_path_ios: "assets/images/InventraLogo_IOS.png"
+  remove_alpha_ios: true
