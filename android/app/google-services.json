@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "469290935694",
+    "project_id": "inventra-f28b4",
+    "storage_bucket": "inventra-f28b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469290935694:android:a93401e0770346d43eb0df",
+        "android_client_info": {
+          "package_name": "com.inventra.inventra"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXo4NGAvlXnyEThDCT_YBpWRZsn9SGc3E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

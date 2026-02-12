@@ -46,10 +46,10 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // User Card
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
+                width: double.infinity,
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkCard : AppColors.lightCard,
                   borderRadius: BorderRadius.circular(16),
@@ -64,54 +64,29 @@ class ProfileScreen extends StatelessWidget {
                             ),
                           ],
                 ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 32,
-                      backgroundColor: AppColors.orange.withValues(alpha: 0.2),
-                      child: ClipOval(
-                        child: Image.network(
-                          'https://i.pravatar.cc/150?img=33',
-                          width: 64,
-                          height: 64,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (context, error, stackTrace) => Icon(
-                                Icons.person,
-                                size: 32,
-                                color: AppColors.orange,
-                              ),
-                        ),
+                    Text(
+                      'Alex Morgan',
+                      style: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.darkTextPrimary
+                                : AppColors.lightTextPrimary,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Alex Morgan',
-                            style: TextStyle(
-                              color:
-                                  isDark
-                                      ? AppColors.darkTextPrimary
-                                      : AppColors.lightTextPrimary,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'alex.morgan@inventra.app',
-                            style: TextStyle(
-                              color:
-                                  isDark
-                                      ? AppColors.darkTextSecondary
-                                      : AppColors.lightTextSecondary,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+                    const SizedBox(height: 4),
+                    Text(
+                      'alex.morgan@inventra.app',
+                      style: TextStyle(
+                        color:
+                            isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -264,7 +239,7 @@ class ProfileScreen extends StatelessWidget {
 
   void _showLogoutDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder:
@@ -279,10 +254,10 @@ class ProfileScreen extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
-                  
+
                   // Sign out from AuthProvider
                   Provider.of<AuthProvider>(context, listen: false).signOut();
-                  
+
                   // Navigate to login screen and clear stack
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
@@ -290,7 +265,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     (route) => false,
                   );
-                  
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.loggedOutSuccessfully)),
                   );

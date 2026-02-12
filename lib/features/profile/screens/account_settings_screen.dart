@@ -13,7 +13,9 @@ class AccountSettingsScreen extends StatefulWidget {
 
 class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   final _nameController = TextEditingController(text: 'Alex Morgan');
-  final _emailController = TextEditingController(text: 'alex.morgan@inventra.app');
+  final _emailController = TextEditingController(
+    text: 'alex.morgan@inventra.app',
+  );
 
   @override
   void dispose() {
@@ -26,23 +28,27 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
-        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        backgroundColor:
+            isDark ? AppColors.darkBackground : AppColors.lightBackground,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color:
+                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.accountSettings,
           style: TextStyle(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color:
+                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
@@ -53,57 +59,8 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Profile Picture
-            Center(
-              child: Stack(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: AppColors.orange.withValues(alpha: 0.2),
-                    child: ClipOval(
-                      child: Image.network(
-                        'https://i.pravatar.cc/150?img=33',
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Icon(
-                          Icons.person,
-                          size: 50,
-                          color: AppColors.orange,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.cyan,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isDark ? AppColors.darkBackground : AppColors.lightBackground,
-                          width: 3,
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
-
             // Form Fields
-            CustomTextField(
-              label: l10n.fullName,
-              controller: _nameController,
-            ),
+            CustomTextField(label: l10n.fullName, controller: _nameController),
             const SizedBox(height: 16),
             CustomTextField(
               label: l10n.emailAddress,
@@ -147,14 +104,20 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                       child: Text(
                         l10n.changePassword,
                         style: TextStyle(
-                          color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                          color:
+                              isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
                           fontSize: 16,
                         ),
                       ),
                     ),
                     Icon(
                       Icons.chevron_right,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color:
+                          isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                     ),
                   ],
                 ),
@@ -169,10 +132,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
               },
               child: Text(
                 l10n.deleteAccount,
-                style: const TextStyle(
-                  color: AppColors.error,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(color: AppColors.error, fontSize: 16),
               ),
             ),
           ],
@@ -191,9 +151,10 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: isDark 
-                    ? AppColors.cyan 
-                    : const Color(0xFF263B83), // R:38 G:59 B:131
+                backgroundColor:
+                    isDark
+                        ? AppColors.cyan
+                        : const Color(0xFF263B83), // R:38 G:59 B:131
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -216,28 +177,32 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
   void _showDeleteAccountDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteAccount),
-        content: Text(l10n.deleteAccountConfirmation),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
+      builder:
+          (context) => AlertDialog(
+            title: Text(l10n.deleteAccount),
+            content: Text(l10n.deleteAccountConfirmation),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.accountDeletionRequested)),
+                  );
+                },
+                child: Text(
+                  l10n.delete,
+                  style: const TextStyle(color: AppColors.error),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.accountDeletionRequested)),
-              );
-            },
-            child: Text(l10n.delete, style: const TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
     );
   }
 }
