@@ -727,4 +727,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get grantPermission => 'İzin Ver';
+
+  @override
+  String get guestUser => 'Misafir Kullanıcı';
 }

@@ -277,5 +277,6 @@
   "openSettings": "Ayarları Aç",
   "cameraPermissionRequired": "Kamera İzni Gerekli",
   "cameraPermissionMessage": "INVENTRA QR kodları taramak için kamera erişimine ihtiyaç duyuyor. Bu özelliği kullanmak için lütfen izin verin.",
-  "grantPermission": "İzin Ver"
+  "grantPermission": "İzin Ver",
+  "guestUser": "Misafir Kullanıcı"
 }

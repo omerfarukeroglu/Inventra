@@ -18,7 +18,6 @@ class _MainScreenEmptyState extends State<MainScreenEmpty> {
   @override
   void initState() {
     super.initState();
-    // Clear all data for Sign Up
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<AppStateProvider>(context, listen: false).clearAllData();
     });
@@ -56,28 +55,85 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
+  // Google ile Kayıt Olma Fonksiyonu
+  Future<void> _handleGoogleSignUp() async {
+    setState(() => _isLoading = true);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    try {
+      final success = await authProvider.signInWithGoogle();
+      if (mounted) {
+        if (success) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const MainScreenEmpty()),
+            (route) => false,
+          );
+        } else if (authProvider.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authProvider.errorMessage!),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
   Future<void> _handleSignUp() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Mock delay for registration
-      await Future.delayed(const Duration(milliseconds: 800));
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final l10n = AppLocalizations.of(context)!;
+      final success = await authProvider.signUp(
+        _nameController.text,
+        _emailController.text,
+        _passwordController.text,
+      );
 
       if (mounted) {
         setState(() => _isLoading = false);
 
-        // Navigate to MainScreen with empty data (boş ekran)
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        await authProvider.signUp(
-          _nameController.text,
-          _emailController.text,
-          'password',
-        );
-
-        if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const MainScreenEmpty()),
-            (route) => false,
+        if (success) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder:
+                (context) => AlertDialog(
+                  title: const Text('Hesabınız Oluşturuldu!'),
+                  content: Text(
+                    'Lütfen ${_emailController.text} adresine gönderilen doğrulama linkine tıklayın.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                          (route) => false,
+                        );
+                      },
+                      child: Text(l10n.ok),
+                    ),
+                  ],
+                ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                authProvider.errorMessage ??
+                    'Kayıt başarısız. Lütfen bilgilerinizi kontrol edin.',
+              ),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       }
@@ -103,7 +159,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 40),
-                // Logo
                 RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
@@ -139,22 +194,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   style: TextStyle(fontSize: 14, color: hintColor),
                 ),
                 const SizedBox(height: 40),
-                // Full name field
                 TextFormField(
                   controller: _nameController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(Icons.person_outline, color: hintColor),
                     hintText: l10n.fullName,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return l10n.pleaseEnterYourName;
-                    }
-                    return null;
-                  },
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? l10n.pleaseEnterYourName
+                              : null,
                 ),
                 const SizedBox(height: 16),
-                // Email field
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -162,18 +214,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     prefixIcon: Icon(Icons.email_outlined, color: hintColor),
                     hintText: l10n.emailAddress,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return l10n.pleaseEnterYourEmail;
-                    }
-                    if (!value.contains('@')) {
-                      return l10n.pleaseEnterValidEmail;
-                    }
-                    return null;
-                  },
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? l10n.pleaseEnterYourEmail
+                              : (value.contains('@')
+                                  ? null
+                                  : l10n.pleaseEnterValidEmail),
                 ),
                 const SizedBox(height: 16),
-                // Password field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -186,24 +235,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             : Icons.visibility,
                         color: hintColor,
                       ),
-                      onPressed: () {
-                        setState(() => _obscurePassword = !_obscurePassword);
-                      },
+                      onPressed:
+                          () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
                     ),
                     hintText: l10n.password,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return l10n.pleaseEnterPassword;
-                    }
-                    if (value.length < 8) {
-                      return l10n.passwordMinLength;
-                    }
-                    return null;
-                  },
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? l10n.pleaseEnterPassword
+                              : (value.length < 8
+                                  ? l10n.passwordMinLength
+                                  : null),
                 ),
                 const SizedBox(height: 16),
-                // Confirm password field
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
@@ -216,28 +263,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             : Icons.visibility,
                         color: hintColor,
                       ),
-                      onPressed: () {
-                        setState(
-                          () =>
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword,
-                        );
-                      },
+                      onPressed:
+                          () => setState(
+                            () =>
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword,
+                          ),
                     ),
                     hintText: l10n.confirmPassword,
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return l10n.pleaseConfirmPassword;
-                    }
-                    if (value != _passwordController.text) {
-                      return l10n.passwordsDoNotMatch;
-                    }
-                    return null;
-                  },
+                  validator:
+                      (value) =>
+                          value != _passwordController.text
+                              ? l10n.passwordsDoNotMatch
+                              : null,
                 ),
                 const SizedBox(height: 32),
-                // Sign up button
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
@@ -270,7 +311,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Divider
                 Row(
                   children: [
                     Expanded(child: Divider(color: hintColor.withOpacity(0.3))),
@@ -282,7 +322,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                // Google sign up
+                // Google Butonu Düzenlendi
                 Container(
                   height: 56,
                   decoration: BoxDecoration(
@@ -293,9 +333,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     color: Colors.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(30),
-                      onTap: () {
-                        // Google sign up
-                      },
+                      onTap:
+                          _isLoading
+                              ? null
+                              : _handleGoogleSignUp, // Fonksiyona bağlandı
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -303,9 +344,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             'assets/icons/google_icon.png',
                             height: 24,
                             width: 24,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Icon(Icons.g_mobiledata, size: 24);
-                            },
+                            errorBuilder:
+                                (context, error, stackTrace) =>
+                                    const Icon(Icons.g_mobiledata, size: 24),
                           ),
                           const SizedBox(width: 12),
                           Text(
@@ -322,7 +363,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                // Sign in link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -331,13 +371,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       style: TextStyle(color: hintColor),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
+                      onPressed:
+                          () => Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
                           ),
-                        );
-                      },
                       child: Text(
                         l10n.signIn,
                         style: TextStyle(

@@ -726,4 +726,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get grantPermission => 'Grant Permission';
+
+  @override
+  String get guestUser => 'Guest User';
 }

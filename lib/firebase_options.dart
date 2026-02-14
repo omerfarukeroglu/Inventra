@@ -63,6 +63,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '469290935694',
     projectId: 'inventra-f28b4',
     storageBucket: 'inventra-f28b4.firebasestorage.app',
+    androidClientId: '469290935694-ahvpkt80ik377vghsqo2bfkclb5gdblo.apps.googleusercontent.com',
+    iosClientId: '469290935694-gil6285cvse25ecnm5ni2qqlomqu3eur.apps.googleusercontent.com',
     iosBundleId: 'com.inventra.inventra',
   );
+
 }

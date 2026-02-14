@@ -1465,6 +1465,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Grant Permission'**
   String get grantPermission;
+
+  /// No description provided for @guestUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest User'**
+  String get guestUser;
 }
 
 class _AppLocalizationsDelegate

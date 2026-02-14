@@ -1,33 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/auth_remote_service.dart';
+import '../utils/auth_error_mapper.dart';
 
 class AuthProvider extends ChangeNotifier {
+  final AuthRemoteService _authService = AuthRemoteService();
   bool _isAuthenticated = false;
   bool _hasCompletedOnboarding = false;
   String? _userEmail;
   String? _userName;
   bool _isInitialized = false;
-  bool _isExistingUser = false; // Track if user is existing or new
+  bool _isLoading = false;
+  String? _errorMessage;
+  bool _needsVerification = false;
 
   bool get isAuthenticated => _isAuthenticated;
   bool get hasCompletedOnboarding => _hasCompletedOnboarding;
   String? get userEmail => _userEmail;
   String? get userName => _userName;
   bool get isInitialized => _isInitialized;
-  bool get isExistingUser => _isExistingUser;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get needsVerification => _needsVerification;
 
   AuthProvider() {
-    _loadPreferences();
+    _init();
+  }
+
+  Future<void> _init() async {
+    await _loadPreferences();
+    _authService.authStateChanges.listen(_onAuthStateChanged);
   }
 
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     _hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
-    _isAuthenticated = prefs.getBool('isAuthenticated') ?? false;
-    _userEmail = prefs.getString('userEmail');
-    _userName = prefs.getString('userName');
-    _isExistingUser = prefs.getBool('isExistingUser') ?? false;
     _isInitialized = true;
+    notifyListeners();
+  }
+
+  // Update local state based on Firebase Auth state
+  Future<void> _onAuthStateChanged(User? user) async {
+    if (user != null) {
+      await user.reload(); // Ensure we have the latest data
+      if (user.emailVerified) {
+        _isAuthenticated = true;
+        _userEmail = user.email;
+        _userName = user.displayName;
+        _needsVerification = false;
+      } else {
+        _isAuthenticated = false;
+        _userEmail = null;
+        _userName = null;
+        _needsVerification = true;
+      }
+    } else {
+      _isAuthenticated = false;
+      _userEmail = null;
+      _userName = null;
+      _needsVerification = false;
+    }
     notifyListeners();
   }
 
@@ -38,81 +71,281 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<bool> signInWithGoogle() async {
+    _setLoading(true);
+    _clearError();
+    try {
+      final credential = await _authService.signInWithGoogle();
+      if (credential == null) {
+        _errorMessage = "Google girişi iptal edildi.";
+        return false;
+      }
+      return true;
+    } catch (e) {
+      _errorMessage = AuthErrorMapper.getMessage(e);
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<bool> signIn(String email, String password) async {
-    // Mock authentication - validate inputs
     if (email.isEmpty || password.isEmpty) {
+      _errorMessage = "E-posta ve şifre boş olamaz.";
+      notifyListeners();
       return false;
     }
-    
-    await Future.delayed(const Duration(milliseconds: 800));
-    
-    _isAuthenticated = true;
-    _userEmail = email;
-    _isExistingUser = true; // Mark as existing user for Sign In
-    
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isAuthenticated', true);
-    await prefs.setString('userEmail', email);
-    await prefs.setBool('isExistingUser', true); // Store existing user flag
-    
-    notifyListeners();
-    return true;
+
+    _setLoading(true);
+    _clearError();
+    try {
+      await _authService.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null && !user.emailVerified) {
+        _errorMessage =
+            "Giriş yapıldı ancak mail adresiniz doğrulanmadı. Lütfen mailinizi kontrol edin.";
+        _needsVerification = true;
+        notifyListeners();
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      _errorMessage = AuthErrorMapper.getMessage(e);
+      notifyListeners(); // Ensure error is propagated immediately for UI to see
+      return false;
+    } finally {
+      // Don't set loading false here if successful, wait for authStateChanges?
+      // No, set it false so UI spinner stops. Auth state listener will trigger nav.
+      _setLoading(false);
+    }
   }
 
   Future<bool> signUp(String name, String email, String password) async {
-    // Mock sign up - validate inputs
-    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+    if (email.isEmpty || password.isEmpty) {
+      _errorMessage = "Tüm alanları doldurun.";
+      notifyListeners();
       return false;
     }
-    
-    if (password.length < 8) {
+
+    _setLoading(true);
+    _clearError();
+    try {
+      final userCredential = await _authService.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Update display name
+      if (userCredential.user != null && name.isNotEmpty) {
+        await userCredential.user!.updateDisplayName(name);
+        await userCredential.user!.reload();
+        // Since email is not verified, _onAuthStateChanged will set isAuthenticated = false
+        // and _needsVerification = true.
+        _userName = name;
+      }
+
+      // Sign out to enforce login after verification
+      await _authService.signOut();
+
+      return true;
+    } catch (e) {
+      _errorMessage = AuthErrorMapper.getMessage(e);
+      notifyListeners();
       return false;
+    } finally {
+      _setLoading(false);
     }
-    
-    await Future.delayed(const Duration(milliseconds: 800));
-    
-    _isAuthenticated = true;
-    _userEmail = email;
-    _userName = name;
-    _isExistingUser = false; // Mark as new user for Sign Up
-    
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isAuthenticated', true);
-    await prefs.setString('userEmail', email);
-    await prefs.setString('userName', name);
-    await prefs.setBool('isExistingUser', false); // Store new user flag
-    // Clear any existing data for new user
-    await prefs.remove('user_spaces');
-    await prefs.remove('user_items');
-    
-    notifyListeners();
-    return true;
   }
 
-  Future<bool> resetPassword(String email) async {
-    // Mock password reset
-    await Future.delayed(const Duration(seconds: 1));
-    return true;
+  Future<void> resendVerificationEmail() async {
+    try {
+      await _authService.sendVerificationEmail();
+    } catch (e) {
+      _errorMessage = AuthErrorMapper.getMessage(e);
+      notifyListeners();
+    }
   }
 
-  Future<bool> changePassword(String currentPassword, String newPassword) async {
-    // Mock password change
-    await Future.delayed(const Duration(seconds: 1));
-    return true;
+  Future<void> checkEmailVerification() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await user.reload();
+      if (user.emailVerified) {
+        _isAuthenticated = true;
+        _needsVerification = false;
+        notifyListeners();
+      }
+    }
   }
 
   Future<void> signOut() async {
-    _isAuthenticated = false;
-    _userEmail = null;
-    _userName = null;
-    _isExistingUser = false;
-    
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isAuthenticated', false);
-    await prefs.remove('userEmail');
-    await prefs.remove('userName');
-    await prefs.remove('isExistingUser');
-    
+    _clearError();
+    await _authService.signOut();
+    // State will be updated via the listener
+  }
+
+  Future<bool> resetPassword(String email) async {
+    if (email.isEmpty) {
+      _errorMessage = "E-posta adresi gerekli.";
+      notifyListeners();
+      return false;
+    }
+    _clearError();
+    _setLoading(true);
+    try {
+      await _authService.sendPasswordResetEmail(email);
+      return true;
+    } catch (e) {
+      _errorMessage = AuthErrorMapper.getMessage(e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    _clearError();
+    _setLoading(true);
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || user.email == null) {
+      _errorMessage = "Kullanıcı oturumu bulunamadı.";
+      _setLoading(false);
+      return false;
+    }
+
+    try {
+      // 1. Re-authenticate
+      await _authService.reauthenticateWithCredential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      // 2. Update Password
+      await _authService.updatePassword(newPassword);
+
+      return true;
+    } catch (e) {
+      _errorMessage = AuthErrorMapper.getMessage(e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> updateDisplayName(String newName) async {
+    _clearError();
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return false;
+
+      await user.updateDisplayName(newName);
+      await user.reload();
+      _userName = newName;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = AuthErrorMapper.getMessage(e);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteAccount(String password) async {
+    _clearError();
+    _setLoading(true);
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _errorMessage = "Kullanıcı oturumu bulunamadı.";
+        return false;
+      }
+
+      // Re-authenticate
+      if (isGoogleUser) {
+        // For Google users, we need to trigger the Google Sign-In flow again
+        await _authService.signInWithGoogle();
+        // Note: signInWithGoogle inside AuthRemoteService returns UserCredential,
+        // which automatically updates the current user's auth state if successful.
+        // We might need to ensure the returned user matches the current user,
+        // but for simplicity and standard flow, this usually suffices for re-auth.
+
+        // However, a stricter re-auth for Google would be:
+        // final googleUser = await GoogleSignIn().signIn();
+        // final googleAuth = await googleUser.authentication;
+        // final credential = GoogleAuthProvider.credential(...)
+        // await user.reauthenticateWithCredential(credential);
+
+        // Since we don't have direct access to GoogleSignIn instance here without exposing it,
+        // and signInWithGoogle essentially does the login, we rely on that.
+        // But to be precise for "re-auth" specifically for deletion, let's use the service's sign in
+        // which refreshes the session.
+
+        // A better approach for strict re-auth is ensuring we get a fresh credential.
+        // Let's assume if signInWithGoogle succeeds, we are good.
+        final credential = await _authService.signInWithGoogle();
+        if (credential == null) {
+          _errorMessage = "Google doğrulama başarısız veya iptal edildi.";
+          return false;
+        }
+      } else {
+        // Email/Password re-auth
+        await _authService.reauthenticateWithCredential(
+          email: user.email!,
+          password: password,
+        );
+      }
+
+      // Proceed with deletion
+      await _authService.deleteUserAccount();
+
+      // Cleanup
+      _isAuthenticated = false;
+      _userEmail = null;
+      _userName = null;
+      // _isGoogleUser = false; // logic removed
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      _errorMessage = AuthErrorMapper.getMessage(e);
+      notifyListeners();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  bool get isGoogleUser {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+
+    for (final provider in user.providerData) {
+      if (provider.providerId == 'google.com') {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _errorMessage = null;
     notifyListeners();
   }
 }

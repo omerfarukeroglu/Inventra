@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -26,11 +27,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       setState(() => _isLoading = true);
 
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final success = await authProvider.resetPassword(_emailController.text);
+      final l10n = AppLocalizations.of(context)!;
+      final success = await authProvider.resetPassword(
+        _emailController.text.trim(),
+      );
 
       if (mounted) {
         setState(() => _isLoading = false);
-        final l10n = AppLocalizations.of(context)!;
 
         if (success) {
           showDialog(
@@ -42,8 +45,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   actions: [
                     TextButton(
                       onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context).pop(); // Go back to login
                       },
                       child: Text(l10n.ok),
                     ),
@@ -51,9 +54,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
           );
         } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(l10n.failedToSendResetLink)));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                authProvider.errorMessage ?? l10n.failedToSendResetLink,
+              ),
+              backgroundColor: AppColors.error,
+            ),
+          );
         }
       }
     }

@@ -308,5 +308,6 @@
   "openSettings": "Open Settings",
   "cameraPermissionRequired": "Camera Permission Required",
   "cameraPermissionMessage": "INVENTRA needs camera access to scan QR codes. Please grant permission to use this feature.",
-  "grantPermission": "Grant Permission"
+  "grantPermission": "Grant Permission",
+  "guestUser": "Guest User"
 }

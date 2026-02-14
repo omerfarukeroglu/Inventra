@@ -46,51 +46,55 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(20),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow:
-                      isDark
-                          ? null
-                          : [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Alex Morgan',
-                      style: TextStyle(
-                        color:
-                            isDark
-                                ? AppColors.darkTextPrimary
-                                : AppColors.lightTextPrimary,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Consumer<AuthProvider>(
+                builder: (context, authProvider, child) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.all(20),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow:
+                          isDark
+                              ? null
+                              : [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'alex.morgan@inventra.app',
-                      style: TextStyle(
-                        color:
-                            isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.lightTextSecondary,
-                        fontSize: 14,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          authProvider.userName ?? l10n.guestUser,
+                          style: TextStyle(
+                            color:
+                                isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          authProvider.userEmail ?? '',
+                          style: TextStyle(
+                            color:
+                                isDark
+                                    ? AppColors.darkTextSecondary
+                                    : AppColors.lightTextSecondary,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               ),
               const SizedBox(height: 16),
 
