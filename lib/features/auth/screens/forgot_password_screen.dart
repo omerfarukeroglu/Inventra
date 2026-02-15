@@ -30,6 +30,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       final l10n = AppLocalizations.of(context)!;
       final success = await authProvider.resetPassword(
         _emailController.text.trim(),
+        l10n,
       );
 
       if (mounted) {

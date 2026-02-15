@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/providers/auth_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/space_card.dart';
@@ -40,7 +41,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return sorted;
   }
 
-  void _showSortOptions(BuildContext context, bool isDark, AppLocalizations l10n) {
+  void _showSortOptions(
+    BuildContext context,
+    bool isDark,
+    AppLocalizations l10n,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -135,16 +140,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          l10n.helloUser,
-                          style: TextStyle(
-                            color:
-                                isDark
-                                    ? AppColors.darkTextPrimary
-                                    : AppColors.lightTextPrimary,
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Consumer<AuthProvider>(
+                          builder: (context, authProvider, child) {
+                            return Text(
+                              '${l10n.hello}, ${authProvider.smartName}',
+                              style: TextStyle(
+                                color:
+                                    isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            );
+                          },
                         ),
                         GestureDetector(
                           onTap: () {
@@ -269,57 +278,61 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisSpacing: 16,
                           childAspectRatio: 0.95,
                         ),
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      if (sortedSpaces.isEmpty) {
-                        // Show only NewSpaceCard with message when empty
-                        if (index == 0) {
-                          return NewSpaceCard(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => const AddStorageScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        }
-                        return null;
-                      } else {
-                        // Show NewSpaceCard + spaces when not empty
-                        if (index == 0) {
-                          return NewSpaceCard(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) => const AddStorageScreen(),
-                                ),
-                              );
-                            },
-                          );
-                        }
-                        final space = sortedSpaces[index - 1];
-                        return SpaceCard(
-                          space: space,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        StorageDetailScreen(space: space),
-                              ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (sortedSpaces.isEmpty) {
+                          // Show only NewSpaceCard with message when empty
+                          if (index == 0) {
+                            return NewSpaceCard(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => const AddStorageScreen(),
+                                  ),
+                                );
+                              },
                             );
-                          },
-                        );
-                      }
-                    }, childCount: sortedSpaces.isEmpty ? 1 : sortedSpaces.length + 1),
+                          }
+                          return null;
+                        } else {
+                          // Show NewSpaceCard + spaces when not empty
+                          if (index == 0) {
+                            return NewSpaceCard(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => const AddStorageScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                          final space = sortedSpaces[index - 1];
+                          return SpaceCard(
+                            space: space,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          StorageDetailScreen(space: space),
+                                ),
+                              );
+                            },
+                          );
+                        }
+                      },
+                      childCount:
+                          sortedSpaces.isEmpty ? 1 : sortedSpaces.length + 1,
+                    ),
                   ),
                 ),
-                
+
                 // Empty message below the grid when no spaces
                 if (sortedSpaces.isEmpty)
                   SliverToBoxAdapter(
@@ -330,7 +343,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             l10n.noSpacesYet,
                             style: TextStyle(
-                              color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                              color:
+                                  isDark
+                                      ? AppColors.darkTextPrimary
+                                      : AppColors.lightTextPrimary,
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                             ),
@@ -340,7 +356,10 @@ class _HomeScreenState extends State<HomeScreen> {
                           Text(
                             l10n.createFirstSpace,
                             style: TextStyle(
-                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                              color:
+                                  isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary,
                               fontSize: 14,
                             ),
                             textAlign: TextAlign.center,

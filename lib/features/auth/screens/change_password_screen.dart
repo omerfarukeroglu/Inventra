@@ -33,9 +33,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       setState(() => _isLoading = true);
 
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final l10n = AppLocalizations.of(context)!;
       final success = await authProvider.changePassword(
         _currentPasswordController.text,
         _newPasswordController.text,
+        l10n,
       );
 
       if (mounted) {

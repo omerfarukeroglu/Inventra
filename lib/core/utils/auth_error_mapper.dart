@@ -1,31 +1,34 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AuthErrorMapper {
-  static String getMessage(Object error) {
+  static String getMessage(Object error, AppLocalizations l10n) {
     if (error is FirebaseAuthException) {
       switch (error.code) {
         case 'user-not-found':
-          return 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.';
+          return l10n.errorUserNotFound;
         case 'wrong-password':
-          return 'Girdiğiniz şifre hatalı. Lütfen tekrar deneyin.';
+          return l10n.errorWrongPassword;
         case 'email-already-in-use':
-          return 'Bu e-posta adresi zaten kullanımda.';
+          return l10n.errorEmailAlreadyInUse;
         case 'invalid-email':
-          return 'Geçersiz e-posta adresi formatı.';
+          return l10n.errorInvalidEmail;
         case 'weak-password':
-          return 'Şifreniz çok zayıf. En az 6 karakterli daha güçlü bir şifre seçin.';
+          return l10n.errorWeakPassword;
         case 'operation-not-allowed':
-          return 'Bu giriş yöntemi şu anda devre dışı.';
+          return l10n.errorOperationNotAllowed;
         case 'too-many-requests':
-          return 'Çok fazla başarısız giriş denemesi. Lütfen daha sonra tekrar deneyin.';
+          return l10n.errorTooManyRequests;
         case 'network-request-failed':
-          return 'İnternet bağlantınızı kontrol edin.';
+          return l10n.errorNetworkRequestFailed;
         case 'user-disabled':
-          return 'Bu kullanıcı hesabı devre dışı bırakılmış.';
+          return l10n.errorUserDisabled;
+        case 'invalid-credential':
+          return l10n.invalidCredentialsError;
         default:
-          return 'Bir hata oluştu: ${error.message}';
+          return '${l10n.errorUnknown}: ${error.message}';
       }
     }
-    return 'Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.';
+    return l10n.errorUnknown;
   }
 }

@@ -190,6 +190,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pleaseConfirmNewPassword => 'Lütfen yeni şifrenizi onaylayın';
 
   @override
+  String get passwordMinLengthShort => 'En az 8 karakter';
+
+  @override
+  String get passwordUppercase => 'Büyük harf';
+
+  @override
+  String get passwordLowercase => 'Küçük harf';
+
+  @override
+  String get passwordDigit => 'Rakam';
+
+  @override
+  String get passwordSpecialChar => 'Özel karakter';
+
+  @override
   String get passwordRequirements =>
       'Şifreniz en az 8 karakter uzunluğunda olmalı\nve harf, rakam ve sembol kombinasyonu\niçermelidir.';
 
@@ -206,7 +221,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get failedToChangePassword => 'Şifre değiştirilemedi';
 
   @override
+  String get hello => 'Merhaba';
+
+  @override
   String get helloUser => 'Merhaba, Alex';
+
+  @override
+  String get guestUser => 'Misafir Kullanıcı';
 
   @override
   String get mySpaces => 'Depolama Alanlarım';
@@ -729,5 +750,42 @@ class AppLocalizationsTr extends AppLocalizations {
   String get grantPermission => 'İzin Ver';
 
   @override
-  String get guestUser => 'Misafir Kullanıcı';
+  String get errorUserNotFound =>
+      'Bu e-posta ile kayıtlı kullanıcı bulunamadı.';
+
+  @override
+  String get errorWrongPassword => 'Girdiğiniz şifre yanlış.';
+
+  @override
+  String get errorEmailAlreadyInUse => 'Bu e-posta adresi zaten kullanımda.';
+
+  @override
+  String get invalidCredentialsError =>
+      'E-posta veya şifre hatalı. Lütfen bilgilerinizi kontrol edin.';
+
+  @override
+  String get errorWeakPassword =>
+      'Şifre çok zayıf. Daha güçlü bir şifre seçin.';
+
+  @override
+  String get errorInvalidEmail => 'Geçersiz e-posta formatı.';
+
+  @override
+  String get errorOperationNotAllowed => 'Bu işlem şu anda yapılamıyor.';
+
+  @override
+  String get errorTooManyRequests =>
+      'Çok fazla deneme yaptınız. Lütfen bekleyin.';
+
+  @override
+  String get errorNetworkRequestFailed => 'İnternet bağlantınızı kontrol edin.';
+
+  @override
+  String get errorUserDisabled => 'Bu kullanıcı hesabı devre dışı bırakılmış.';
+
+  @override
+  String get errorSamePassword => 'Yeni şifre mevcut şifre ile aynı olamaz.';
+
+  @override
+  String get errorUnknown => 'Beklenmeyen bir hata oluştu.';
 }

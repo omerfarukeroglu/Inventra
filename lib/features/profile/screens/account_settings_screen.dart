@@ -41,6 +41,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final success = await authProvider.updateDisplayName(
         _nameController.text.trim(),
+        l10n,
       );
 
       if (mounted) {
@@ -296,6 +297,7 @@ class _AccountSettingsScreenState extends State<AccountSettingsScreen> {
 
                               final success = await authProvider.deleteAccount(
                                 passwordController.text.trim(),
+                                l10n,
                               );
 
                               if (!context.mounted) return;

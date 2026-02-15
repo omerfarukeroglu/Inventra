@@ -4,6 +4,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/app_state_provider.dart';
 import '../../../app.dart';
 import 'login_screen.dart';
+import '../widgets/password_validation_widget.dart';
 import '../../../l10n/app_localizations.dart';
 
 // Wrapper for MainScreen with empty data
@@ -61,7 +62,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     try {
-      final success = await authProvider.signInWithGoogle();
+      final success = await authProvider.signInWithGoogle(
+        AppLocalizations.of(context)!,
+      );
       if (mounted) {
         if (success) {
           Navigator.of(context).pushAndRemoveUntil(
@@ -94,6 +97,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         _nameController.text,
         _emailController.text,
         _passwordController.text,
+        l10n,
       );
 
       if (mounted) {
@@ -242,13 +246,39 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     ),
                     hintText: l10n.password,
                   ),
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? l10n.pleaseEnterPassword
-                              : (value.length < 8
-                                  ? l10n.passwordMinLength
-                                  : null),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l10n.pleaseEnterPassword;
+                    }
+                    // Comprehensive validation matches the widget's logic
+                    final hasMinLength = value.length >= 8;
+                    final hasUppercase = value.contains(RegExp(r'[A-Z]'));
+                    final hasLowercase = value.contains(RegExp(r'[a-z]'));
+                    final hasDigit = value.contains(RegExp(r'[0-9]'));
+                    final hasSpecialChar = value.contains(
+                      RegExp(r'[!@#\$%^&*(),.?":{}|<>]'),
+                    );
+
+                    if (!hasMinLength ||
+                        !hasUppercase ||
+                        !hasLowercase ||
+                        !hasDigit ||
+                        !hasSpecialChar) {
+                      return l10n.passwordRequirements; // General error message
+                    }
+                    return null;
+                  },
+                ),
+                // Password Validation Checklist
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: _passwordController,
+                  builder: (context, value, child) {
+                    if (value.text.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                      child: PasswordValidationWidget(password: value.text),
+                    );
+                  },
                 ),
                 const SizedBox(height: 16),
                 TextFormField(

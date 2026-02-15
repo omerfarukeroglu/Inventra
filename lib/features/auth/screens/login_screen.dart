@@ -58,7 +58,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     try {
-      final success = await authProvider.signInWithGoogle();
+      final success = await authProvider.signInWithGoogle(
+        AppLocalizations.of(context)!,
+      );
 
       if (mounted) {
         if (success) {
@@ -91,6 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final success = await authProvider.signIn(
         _emailController.text,
         _passwordController.text,
+        l10n,
       );
 
       if (mounted) {
@@ -114,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   label: 'Tekrar Gönder', // Hardcoded for now or add to l10n
                   textColor: Colors.white,
                   onPressed: () {
-                    authProvider.resendVerificationEmail();
+                    authProvider.resendVerificationEmail(l10n);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Doğrulama maili tekrar gönderildi.'),

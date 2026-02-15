@@ -190,6 +190,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseConfirmNewPassword => 'Please confirm your new password';
 
   @override
+  String get passwordMinLengthShort => 'At least 8 characters';
+
+  @override
+  String get passwordUppercase => 'Uppercase letter';
+
+  @override
+  String get passwordLowercase => 'Lowercase letter';
+
+  @override
+  String get passwordDigit => 'Number';
+
+  @override
+  String get passwordSpecialChar => 'Special character';
+
+  @override
   String get passwordRequirements =>
       'Your password must be at least 8 characters\nlong and include a combination of letters,\nnumbers, and symbols.';
 
@@ -207,7 +222,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedToChangePassword => 'Failed to change password';
 
   @override
+  String get hello => 'Hello';
+
+  @override
   String get helloUser => 'Hello, Alex';
+
+  @override
+  String get guestUser => 'Guest User';
 
   @override
   String get mySpaces => 'My Spaces';
@@ -728,5 +749,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get grantPermission => 'Grant Permission';
 
   @override
-  String get guestUser => 'Guest User';
+  String get errorUserNotFound => 'No user found with this email.';
+
+  @override
+  String get errorWrongPassword => 'Wrong password provided.';
+
+  @override
+  String get errorEmailAlreadyInUse => 'The email address is already in use.';
+
+  @override
+  String get invalidCredentialsError =>
+      'Invalid email or password. Please check your credentials.';
+
+  @override
+  String get errorWeakPassword => 'The password is too weak.';
+
+  @override
+  String get errorInvalidEmail => 'The email address is invalid.';
+
+  @override
+  String get errorOperationNotAllowed => 'Operation not allowed.';
+
+  @override
+  String get errorTooManyRequests => 'Too many requests. Try again later.';
+
+  @override
+  String get errorNetworkRequestFailed =>
+      'Network error. Check your connection.';
+
+  @override
+  String get errorUserDisabled => 'This user has been disabled.';
+
+  @override
+  String get errorSamePassword =>
+      'New password cannot be the same as the current password.';
+
+  @override
+  String get errorUnknown => 'An unknown error occurred.';
 }

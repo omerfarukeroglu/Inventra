@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_remote_service.dart';
 import '../utils/auth_error_mapper.dart';
+import '../../l10n/app_localizations.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthRemoteService _authService = AuthRemoteService();
@@ -64,6 +65,26 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Smart Name Logic
+  String get smartName {
+    final name = _userName ?? '';
+    if (name.isEmpty) return '';
+
+    // If name is longer than 12 chars, try to take only the first name
+    if (name.length > 12) {
+      final parts = name.split(' ');
+      if (parts.isNotEmpty) {
+        // If first name itself is > 12, truncate it
+        if (parts.first.length > 12) {
+          return '${parts.first.substring(0, 10)}...';
+        }
+        return parts.first;
+      }
+      return '${name.substring(0, 10)}...';
+    }
+    return name;
+  }
+
   Future<void> completeOnboarding() async {
     _hasCompletedOnboarding = true;
     final prefs = await SharedPreferences.getInstance();
@@ -71,7 +92,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> signInWithGoogle() async {
+  Future<bool> signInWithGoogle(AppLocalizations l10n) async {
     _setLoading(true);
     _clearError();
     try {
@@ -82,16 +103,20 @@ class AuthProvider extends ChangeNotifier {
       }
       return true;
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e);
+      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
       return false;
     } finally {
       _setLoading(false);
     }
   }
 
-  Future<bool> signIn(String email, String password) async {
+  Future<bool> signIn(
+    String email,
+    String password,
+    AppLocalizations l10n,
+  ) async {
     if (email.isEmpty || password.isEmpty) {
-      _errorMessage = "E-posta ve şifre boş olamaz.";
+      _errorMessage = l10n.errorInvalidEmail; // Generic empty check
       notifyListeners();
       return false;
     }
@@ -115,8 +140,8 @@ class AuthProvider extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e);
-      notifyListeners(); // Ensure error is propagated immediately for UI to see
+      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
+      notifyListeners();
       return false;
     } finally {
       // Don't set loading false here if successful, wait for authStateChanges?
@@ -125,9 +150,14 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> signUp(String name, String email, String password) async {
+  Future<bool> signUp(
+    String name,
+    String email,
+    String password,
+    AppLocalizations l10n,
+  ) async {
     if (email.isEmpty || password.isEmpty) {
-      _errorMessage = "Tüm alanları doldurun.";
+      _errorMessage = l10n.errorInvalidEmail; // Generic empty check
       notifyListeners();
       return false;
     }
@@ -144,9 +174,10 @@ class AuthProvider extends ChangeNotifier {
       if (userCredential.user != null && name.isNotEmpty) {
         await userCredential.user!.updateDisplayName(name);
         await userCredential.user!.reload();
-        // Since email is not verified, _onAuthStateChanged will set isAuthenticated = false
-        // and _needsVerification = true.
+
+        // Ensure local state is updated immediately
         _userName = name;
+        _userEmail = email; // Sync email too
       }
 
       // Sign out to enforce login after verification
@@ -154,7 +185,7 @@ class AuthProvider extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e);
+      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
       notifyListeners();
       return false;
     } finally {
@@ -162,11 +193,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> resendVerificationEmail() async {
+  Future<void> resendVerificationEmail(AppLocalizations l10n) async {
     try {
       await _authService.sendVerificationEmail();
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e);
+      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
       notifyListeners();
     }
   }
@@ -189,9 +220,9 @@ class AuthProvider extends ChangeNotifier {
     // State will be updated via the listener
   }
 
-  Future<bool> resetPassword(String email) async {
+  Future<bool> resetPassword(String email, AppLocalizations l10n) async {
     if (email.isEmpty) {
-      _errorMessage = "E-posta adresi gerekli.";
+      _errorMessage = l10n.errorInvalidEmail;
       notifyListeners();
       return false;
     }
@@ -201,7 +232,7 @@ class AuthProvider extends ChangeNotifier {
       await _authService.sendPasswordResetEmail(email);
       return true;
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e);
+      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
       notifyListeners();
       return false;
     } finally {
@@ -212,13 +243,21 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> changePassword(
     String currentPassword,
     String newPassword,
+    AppLocalizations l10n,
   ) async {
+    // Password Security Check: New password cannot be same as old
+    if (currentPassword == newPassword) {
+      _errorMessage = l10n.errorSamePassword;
+      notifyListeners();
+      return false;
+    }
+
     _clearError();
     _setLoading(true);
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || user.email == null) {
-      _errorMessage = "Kullanıcı oturumu bulunamadı.";
+      _errorMessage = l10n.errorUserNotFound;
       _setLoading(false);
       return false;
     }
@@ -235,7 +274,7 @@ class AuthProvider extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e);
+      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
       notifyListeners();
       return false;
     } finally {
@@ -243,7 +282,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateDisplayName(String newName) async {
+  Future<bool> updateDisplayName(String newName, AppLocalizations l10n) async {
     _clearError();
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -255,20 +294,20 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e);
+      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
       notifyListeners();
       return false;
     }
   }
 
-  Future<bool> deleteAccount(String password) async {
+  Future<bool> deleteAccount(String password, AppLocalizations l10n) async {
     _clearError();
     _setLoading(true);
 
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        _errorMessage = "Kullanıcı oturumu bulunamadı.";
+        _errorMessage = l10n.errorUserNotFound;
         return false;
       }
 
@@ -319,7 +358,7 @@ class AuthProvider extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e);
+      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
       notifyListeners();
       return false;
     } finally {

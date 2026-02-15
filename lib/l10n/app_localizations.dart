@@ -446,6 +446,36 @@ abstract class AppLocalizations {
   /// **'Please confirm your new password'**
   String get pleaseConfirmNewPassword;
 
+  /// No description provided for @passwordMinLengthShort.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 8 characters'**
+  String get passwordMinLengthShort;
+
+  /// No description provided for @passwordUppercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Uppercase letter'**
+  String get passwordUppercase;
+
+  /// No description provided for @passwordLowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowercase letter'**
+  String get passwordLowercase;
+
+  /// No description provided for @passwordDigit.
+  ///
+  /// In en, this message translates to:
+  /// **'Number'**
+  String get passwordDigit;
+
+  /// No description provided for @passwordSpecialChar.
+  ///
+  /// In en, this message translates to:
+  /// **'Special character'**
+  String get passwordSpecialChar;
+
   /// No description provided for @passwordRequirements.
   ///
   /// In en, this message translates to:
@@ -476,11 +506,23 @@ abstract class AppLocalizations {
   /// **'Failed to change password'**
   String get failedToChangePassword;
 
+  /// No description provided for @hello.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello'**
+  String get hello;
+
   /// No description provided for @helloUser.
   ///
   /// In en, this message translates to:
   /// **'Hello, Alex'**
   String get helloUser;
+
+  /// No description provided for @guestUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest User'**
+  String get guestUser;
 
   /// No description provided for @mySpaces.
   ///
@@ -1466,11 +1508,77 @@ abstract class AppLocalizations {
   /// **'Grant Permission'**
   String get grantPermission;
 
-  /// No description provided for @guestUser.
+  /// No description provided for @errorUserNotFound.
   ///
   /// In en, this message translates to:
-  /// **'Guest User'**
-  String get guestUser;
+  /// **'No user found with this email.'**
+  String get errorUserNotFound;
+
+  /// No description provided for @errorWrongPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong password provided.'**
+  String get errorWrongPassword;
+
+  /// No description provided for @errorEmailAlreadyInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'The email address is already in use.'**
+  String get errorEmailAlreadyInUse;
+
+  /// No description provided for @invalidCredentialsError.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email or password. Please check your credentials.'**
+  String get invalidCredentialsError;
+
+  /// No description provided for @errorWeakPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'The password is too weak.'**
+  String get errorWeakPassword;
+
+  /// No description provided for @errorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'The email address is invalid.'**
+  String get errorInvalidEmail;
+
+  /// No description provided for @errorOperationNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation not allowed.'**
+  String get errorOperationNotAllowed;
+
+  /// No description provided for @errorTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Try again later.'**
+  String get errorTooManyRequests;
+
+  /// No description provided for @errorNetworkRequestFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Network error. Check your connection.'**
+  String get errorNetworkRequestFailed;
+
+  /// No description provided for @errorUserDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'This user has been disabled.'**
+  String get errorUserDisabled;
+
+  /// No description provided for @errorSamePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password cannot be the same as the current password.'**
+  String get errorSamePassword;
+
+  /// No description provided for @errorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'An unknown error occurred.'**
+  String get errorUnknown;
 }
 
 class _AppLocalizationsDelegate
