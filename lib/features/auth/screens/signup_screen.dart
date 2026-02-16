@@ -4,7 +4,7 @@ import '../../../core/providers/auth_provider.dart';
 import '../../../core/providers/app_state_provider.dart';
 import '../../../app.dart';
 import 'login_screen.dart';
-import '../widgets/password_validation_widget.dart';
+import '../../../core/widgets/password_validation_widget.dart';
 import '../../../l10n/app_localizations.dart';
 
 // Wrapper for MainScreen with empty data

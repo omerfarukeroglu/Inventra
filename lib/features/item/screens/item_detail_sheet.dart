@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/providers/app_state_provider.dart';
+import '../../../core/providers/storage_provider.dart';
 import '../../../models/item.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -136,16 +136,22 @@ class ItemDetailSheet extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          item.location,
-                          style: TextStyle(
-                            color:
-                                isDark
-                                    ? AppColors.darkTextPrimary
-                                    : AppColors.lightTextPrimary,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        Builder(
+                          builder: (context) {
+                            final sp = context.read<StorageProvider>();
+                            final parentSpace = sp.getSpaceById(item.spaceId);
+                            return Text(
+                              parentSpace?.location ?? '',
+                              style: TextStyle(
+                                color:
+                                    isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -170,7 +176,7 @@ class ItemDetailSheet extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                              Row(
+                            Row(
                               children: [
                                 Icon(
                                   Icons.gps_fixed,
@@ -190,16 +196,24 @@ class ItemDetailSheet extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            Text(
-                              item.spaceName,
-                              style: TextStyle(
-                                color:
-                                    isDark
-                                        ? AppColors.darkTextPrimary
-                                        : AppColors.lightTextPrimary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
+                            Builder(
+                              builder: (context) {
+                                final sp = context.read<StorageProvider>();
+                                final parentSpace = sp.getSpaceById(
+                                  item.spaceId,
+                                );
+                                return Text(
+                                  parentSpace?.name ?? '',
+                                  style: TextStyle(
+                                    color:
+                                        isDark
+                                            ? AppColors.darkTextPrimary
+                                            : AppColors.lightTextPrimary,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              },
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -277,7 +291,7 @@ class ItemDetailSheet extends StatelessWidget {
   void _showEditDialog(BuildContext context, Item item) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final appState = context.read<AppStateProvider>();
+    final storageProvider = context.read<StorageProvider>();
     final nameController = TextEditingController(text: item.name);
     final descriptionController = TextEditingController(
       text: item.description ?? '',
@@ -448,7 +462,10 @@ class ItemDetailSheet extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   if (nameController.text.isNotEmpty) {
-                    final updatedItem = item.copyWith(
+                    Navigator.pop(dialogContext);
+                    storageProvider.updateItem(
+                      spaceId: item.spaceId,
+                      itemId: item.id,
                       name: nameController.text,
                       description:
                           descriptionController.text.isEmpty
@@ -456,8 +473,6 @@ class ItemDetailSheet extends StatelessWidget {
                               : descriptionController.text,
                       quantity: int.tryParse(quantityController.text) ?? 1,
                     );
-                    Navigator.pop(dialogContext);
-                    appState.updateItem(updatedItem);
                   }
                 },
                 child: Text(
@@ -475,15 +490,13 @@ class ItemDetailSheet extends StatelessWidget {
 
   void _showDeleteConfirmation(BuildContext context, Item item) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
             title: Text(l10n.deleteItemQuestion),
-            content: Text(
-              l10n.deleteItemConfirmation(item.name),
-            ),
+            content: Text(l10n.deleteItemConfirmation(item.name)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -491,7 +504,10 @@ class ItemDetailSheet extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  context.read<AppStateProvider>().deleteItem(item.id);
+                  context.read<StorageProvider>().deleteItem(
+                    spaceId: item.spaceId,
+                    itemId: item.id,
+                  );
                   Navigator.pop(context);
                 },
                 child: Text(
@@ -507,9 +523,10 @@ class ItemDetailSheet extends StatelessWidget {
   void _showMoveDialog(BuildContext context, Item item) {
     final l10n = AppLocalizations.of(context)!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final appState = context.read<AppStateProvider>();
+    final storageProvider = context.read<StorageProvider>();
     final messenger = ScaffoldMessenger.of(context);
-    final spaces = appState.spaces.where((s) => s.id != item.spaceId).toList();
+    final spaces =
+        storageProvider.spaces.where((s) => s.id != item.spaceId).toList();
 
     showDialog(
       context: context,
@@ -549,7 +566,11 @@ class ItemDetailSheet extends StatelessWidget {
                     (space) => InkWell(
                       onTap: () {
                         Navigator.pop(dialogContext);
-                        appState.moveItem(item.id, space.id);
+                        storageProvider.moveItem(
+                          fromSpaceId: item.spaceId,
+                          toSpaceId: space.id,
+                          item: item,
+                        );
                         messenger.showSnackBar(
                           SnackBar(
                             content: Text(l10n.itemMovedTo(space.name)),

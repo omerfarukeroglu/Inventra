@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Item {
@@ -5,11 +6,8 @@ class Item {
   final String name;
   final String? description;
   final String spaceId;
-  final String spaceName;
-  final String location;
   final int quantity;
-  final String? notes;
-  final IconData icon;
+  final String? note;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -18,25 +16,46 @@ class Item {
     required this.name,
     this.description,
     required this.spaceId,
-    required this.spaceName,
-    required this.location,
     this.quantity = 1,
-    this.notes,
-    required this.icon,
+    this.note,
     DateTime? createdAt,
     this.updatedAt,
   }) : createdAt = createdAt ?? DateTime.now();
+
+  // ── Firestore serialization ──
+
+  factory Item.fromMap(Map<String, dynamic> map, String id) {
+    return Item(
+      id: id,
+      name: map['name'] as String? ?? '',
+      description: map['description'] as String?,
+      spaceId: map['spaceId'] as String? ?? '',
+      quantity: map['quantity'] as int? ?? 1,
+      note: map['note'] as String?,
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (map['updatedAt'] as Timestamp?)?.toDate(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      if (description != null) 'description': description,
+      'spaceId': spaceId,
+      'quantity': quantity,
+      if (note != null) 'note': note,
+      'createdAt': Timestamp.fromDate(createdAt),
+      if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
+    };
+  }
 
   Item copyWith({
     String? id,
     String? name,
     String? description,
     String? spaceId,
-    String? spaceName,
-    String? location,
     int? quantity,
-    String? notes,
-    IconData? icon,
+    String? note,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -45,16 +64,19 @@ class Item {
       name: name ?? this.name,
       description: description ?? this.description,
       spaceId: spaceId ?? this.spaceId,
-      spaceName: spaceName ?? this.spaceName,
-      location: location ?? this.location,
       quantity: quantity ?? this.quantity,
-      notes: notes ?? this.notes,
-      icon: icon ?? this.icon,
+      note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
+
+  // ── UI helper ──
+
+  IconData get icon => Icons.inventory_2_outlined;
 }
+
+// ── Notification Model (unchanged) ──
 
 class NotificationItem {
   final String id;
@@ -112,7 +134,6 @@ class NotificationItem {
     }
   }
 
-  // Get localized title based on notification type
   String getLocalizedTitle(
     String itemAdded,
     String spaceCreated,
@@ -132,9 +153,4 @@ class NotificationItem {
   }
 }
 
-enum NotificationType {
-  itemAdded,
-  spaceCreated,
-  welcome,
-  systemUpdate,
-}
+enum NotificationType { itemAdded, spaceCreated, welcome, systemUpdate }

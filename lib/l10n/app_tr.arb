@@ -296,5 +296,8 @@
   "errorNetworkRequestFailed": "İnternet bağlantınızı kontrol edin.",
   "errorUserDisabled": "Bu kullanıcı hesabı devre dışı bırakılmış.",
   "errorSamePassword": "Yeni şifre mevcut şifre ile aynı olamaz.",
-  "errorUnknown": "Beklenmeyen bir hata oluştu."
+  "errorUnknown": "Beklenmeyen bir hata oluştu.",
+  "rememberMe": "Beni Hatırla",
+  "insideSpace": "içerisinde",
+  "currentPasswordIncorrect": "Girdiğiniz mevcut şifre yanlış."
 }

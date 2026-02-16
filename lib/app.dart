@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/providers/auth_provider.dart';
 import 'core/providers/app_state_provider.dart';
+import 'core/providers/storage_provider.dart';
 import 'features/home/screens/home_screen.dart';
 import 'features/search/screens/search_results_screen.dart';
 import 'features/scanner/screens/qr_scanner_screen.dart';
@@ -21,6 +23,15 @@ class InventraApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer3<ThemeProvider, AuthProvider, AppStateProvider>(
       builder: (context, themeProvider, authProvider, appState, child) {
+        // Init or clear StorageProvider based on auth state
+        final storageProvider = context.read<StorageProvider>();
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (authProvider.isAuthenticated && currentUser != null) {
+          storageProvider.init(currentUser.uid);
+        } else if (!authProvider.isAuthenticated) {
+          storageProvider.clear();
+        }
+
         return MaterialApp(
           title: 'INVENTRA',
           debugShowCheckedModeBanner: false,
@@ -62,20 +73,14 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final PageController _pageController = PageController(initialPage: 0);
 
-  // Pages list - index must match tab bar indices
-  // 0: Home, 1: Search, 2: QR Scanner, 3: Profile
-  // Create pages on demand to pass current state
   List<Widget> get _pages => [
-    const HomeScreen(key: ValueKey('home')), // Index 0
+    const HomeScreen(key: ValueKey('home')),
     SearchResultsScreen(
       key: const ValueKey('search'),
-      isEnabled: _currentIndex == 1, // Only enabled when active tab
-    ), // Index 1
-    QRScannerScreen(
-      key: const ValueKey('qr'),
-      isActive: _currentIndex == 2,
-    ), // Index 2
-    const ProfileScreen(key: ValueKey('profile')), // Index 3
+      isEnabled: _currentIndex == 1,
+    ),
+    QRScannerScreen(key: const ValueKey('qr'), isActive: _currentIndex == 2),
+    const ProfileScreen(key: ValueKey('profile')),
   ];
 
   @override
@@ -93,7 +98,6 @@ class _MainScreenState extends State<MainScreen> {
       body: PageView(
         controller: _pageController,
         onPageChanged: (pageIndex) {
-          // Dismiss keyboard when changing pages via swipe
           FocusScope.of(context).unfocus();
           setState(() => _currentIndex = pageIndex);
         },
@@ -103,10 +107,8 @@ class _MainScreenState extends State<MainScreen> {
         currentIndex: _currentIndex,
         isQRScannerActive: isQRScreen,
         onTap: (index) {
-          // Dismiss keyboard when changing tabs
           FocusScope.of(context).unfocus();
           setState(() => _currentIndex = index);
-          // Jump directly to the page without animating through intermediate pages
           _pageController.jumpToPage(index);
         },
       ),

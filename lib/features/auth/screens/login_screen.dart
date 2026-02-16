@@ -1,35 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/auth_provider.dart';
-import '../../../core/providers/app_state_provider.dart';
 import '../../../app.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
 import '../../../l10n/app_localizations.dart';
-
-// Wrapper for MainScreen with demo data
-class MainScreenWithData extends StatefulWidget {
-  const MainScreenWithData({super.key});
-
-  @override
-  State<MainScreenWithData> createState() => _MainScreenWithDataState();
-}
-
-class _MainScreenWithDataState extends State<MainScreenWithData> {
-  @override
-  void initState() {
-    super.initState();
-    // Load demo data for Sign In
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<AppStateProvider>(context, listen: false).loadDemoData();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const MainScreen();
-  }
-}
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _isLoading = false;
+  bool _rememberMe = true;
 
   @override
   void dispose() {
@@ -64,8 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (mounted) {
         if (success) {
+          await authProvider.setRememberMe(_rememberMe);
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const MainScreenWithData()),
+            MaterialPageRoute(builder: (context) => const MainScreen()),
             (route) => false,
           );
         } else if (authProvider.errorMessage != null) {
@@ -100,8 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() => _isLoading = false);
 
         if (success) {
+          await authProvider.setRememberMe(_rememberMe);
           Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => const MainScreenWithData()),
+            MaterialPageRoute(builder: (context) => const MainScreen()),
             (route) => false,
           );
         } else {
@@ -244,24 +222,48 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? l10n.pleaseEnterYourPassword
                               : null,
                 ),
-                const SizedBox(height: 8),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed:
-                        () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const ForgotPasswordScreen(),
-                          ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: Checkbox(
+                        value: _rememberMe,
+                        onChanged:
+                            (v) => setState(() => _rememberMe = v ?? true),
+                        activeColor: colorScheme.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                    child: Text(
-                      l10n.forgotYourPassword,
-                      style: TextStyle(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () => setState(() => _rememberMe = !_rememberMe),
+                      child: Text(
+                        l10n.rememberMe,
+                        style: TextStyle(color: hintColor, fontSize: 14),
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed:
+                          () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => const ForgotPasswordScreen(),
+                            ),
+                          ),
+                      child: Text(
+                        l10n.forgotYourPassword,
+                        style: TextStyle(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 SizedBox(

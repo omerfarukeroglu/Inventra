@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/providers/storage_provider.dart';
+import '../../../core/providers/app_state_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/space_card.dart';
-import '../../../core/providers/app_state_provider.dart';
 import '../../../models/space.dart';
 import '../../storage/screens/storage_detail_screen.dart';
 import '../../storage/screens/add_storage_screen.dart';
@@ -127,9 +128,15 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor:
           isDark ? AppColors.darkBackground : AppColors.lightBackground,
       body: SafeArea(
-        child: Consumer<AppStateProvider>(
-          builder: (context, appState, child) {
-            final sortedSpaces = _sortSpaces(appState.spaces);
+        child: Consumer2<StorageProvider, AppStateProvider>(
+          builder: (context, storageProvider, appState, child) {
+            if (storageProvider.isLoading) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColors.primaryCyan),
+              );
+            }
+
+            final sortedSpaces = _sortSpaces(storageProvider.spaces);
 
             return CustomScrollView(
               slivers: [
@@ -267,7 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // Spaces Grid - Always show grid with NewSpaceCard
+                // Spaces Grid
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   sliver: SliverGrid(
@@ -281,7 +288,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         if (sortedSpaces.isEmpty) {
-                          // Show only NewSpaceCard with message when empty
                           if (index == 0) {
                             return NewSpaceCard(
                               onTap: () {
@@ -297,7 +303,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           }
                           return null;
                         } else {
-                          // Show NewSpaceCard + spaces when not empty
                           if (index == 0) {
                             return NewSpaceCard(
                               onTap: () {
@@ -333,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                // Empty message below the grid when no spaces
+                // Empty message
                 if (sortedSpaces.isEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
@@ -369,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                // Bottom padding for tab bar
+                // Bottom padding
                 const SliverToBoxAdapter(child: SizedBox(height: 100)),
               ],
             );

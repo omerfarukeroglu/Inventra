@@ -9,8 +9,9 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/item_row.dart';
 import '../../../core/widgets/empty_state.dart';
-import '../../../core/providers/app_state_provider.dart';
+import '../../../core/providers/storage_provider.dart';
 import '../../../models/space.dart';
+import '../../../models/item.dart';
 import '../../item/screens/add_item_screen.dart';
 import '../../item/screens/item_detail_sheet.dart';
 import '../../../l10n/app_localizations.dart';
@@ -25,14 +26,10 @@ class StorageDetailScreen extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
 
-    return Consumer<AppStateProvider>(
-      builder: (context, appState, child) {
+    return Consumer<StorageProvider>(
+      builder: (context, storageProvider, child) {
         // Get the current space from provider to reflect any updates
-        final currentSpace = appState.spaces.firstWhere(
-          (s) => s.id == space.id,
-          orElse: () => space,
-        );
-        final items = appState.getItemsForSpace(currentSpace.id);
+        final currentSpace = storageProvider.getSpaceById(space.id) ?? space;
 
         return Scaffold(
           backgroundColor:
@@ -104,7 +101,7 @@ class StorageDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${currentSpace.location} • ${items.length} ${items.length == 1 ? l10n.itemSingular : l10n.itemPlural}',
+                      '${currentSpace.location} • ${currentSpace.itemCount} ${currentSpace.itemCount == 1 ? l10n.itemSingular : l10n.itemPlural}',
                       style: TextStyle(
                         color:
                             isDark
@@ -227,36 +224,49 @@ class StorageDetailScreen extends StatelessWidget {
 
               // Items List
               Expanded(
-                child:
-                    items.isEmpty
-                        ? EmptyState(
-                          icon: Icons.inventory_2_outlined,
-                          title: l10n.noItemsYet,
-                          subtitle: l10n.addFirstItem,
-                        )
-                        : ListView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            final item = items[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: ItemRow(
-                                item: item,
-                                onTap: () {
-                                  showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    backgroundColor: Colors.transparent,
-                                    builder:
-                                        (context) =>
-                                            ItemDetailSheet(item: item),
-                                  );
-                                },
-                              ),
-                            );
-                          },
+                child: StreamBuilder<List<Item>>(
+                  stream: storageProvider.getItemsStream(currentSpace.id),
+                  builder: (context, snapshot) {
+                    final items = snapshot.data ?? [];
+                    if (snapshot.connectionState == ConnectionState.waiting &&
+                        items.isEmpty) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryCyan,
                         ),
+                      );
+                    }
+                    if (items.isEmpty) {
+                      return EmptyState(
+                        icon: Icons.inventory_2_outlined,
+                        title: l10n.noItemsYet,
+                        subtitle: l10n.addFirstItem,
+                      );
+                    }
+                    return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ItemRow(
+                            item: item,
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder:
+                                    (context) => ItemDetailSheet(item: item),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -268,13 +278,13 @@ class StorageDetailScreen extends StatelessWidget {
   String _getManageTitle(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     switch (space.type) {
-      case SpaceType.box:
+      case StorageType.box:
         return l10n.manageBox;
-      case SpaceType.drawer:
+      case StorageType.drawer:
         return l10n.manageDrawer;
-      case SpaceType.shelf:
+      case StorageType.shelf:
         return l10n.manageShelf;
-      case SpaceType.cabinet:
+      case StorageType.cabinet:
         return l10n.manageCabinet;
     }
   }
@@ -282,13 +292,13 @@ class StorageDetailScreen extends StatelessWidget {
   String _getDeleteTitle(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     switch (space.type) {
-      case SpaceType.box:
+      case StorageType.box:
         return l10n.deleteBox;
-      case SpaceType.drawer:
+      case StorageType.drawer:
         return l10n.deleteDrawer;
-      case SpaceType.shelf:
+      case StorageType.shelf:
         return l10n.deleteShelf;
-      case SpaceType.cabinet:
+      case StorageType.cabinet:
         return l10n.deleteCabinet;
     }
   }
@@ -296,13 +306,13 @@ class StorageDetailScreen extends StatelessWidget {
   String _getEditTitle(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     switch (space.type) {
-      case SpaceType.box:
+      case StorageType.box:
         return l10n.editBox;
-      case SpaceType.drawer:
+      case StorageType.drawer:
         return l10n.editDrawer;
-      case SpaceType.shelf:
+      case StorageType.shelf:
         return l10n.editShelf;
-      case SpaceType.cabinet:
+      case StorageType.cabinet:
         return l10n.editCabinet;
     }
   }
@@ -448,7 +458,7 @@ class StorageDetailScreen extends StatelessWidget {
   void _showEditDialog(BuildContext context, Space currentSpace) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
-    final appState = context.read<AppStateProvider>();
+    final storageProvider = context.read<StorageProvider>();
     final nameController = TextEditingController(text: currentSpace.name);
     final locationController = TextEditingController(
       text: currentSpace.location,
@@ -575,14 +585,14 @@ class StorageDetailScreen extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   if (nameController.text.isNotEmpty) {
-                    final updatedSpace = currentSpace.copyWith(
+                    storageProvider.updateSpace(
+                      spaceId: currentSpace.id,
                       name: nameController.text,
                       location:
                           locationController.text.isEmpty
                               ? l10n.notSpecified
                               : locationController.text,
                     );
-                    appState.updateSpace(updatedSpace);
                     Navigator.pop(dialogContext);
                   }
                 },
@@ -615,7 +625,7 @@ class StorageDetailScreen extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  context.read<AppStateProvider>().deleteSpace(space.id);
+                  context.read<StorageProvider>().deleteSpace(space.id);
                   Navigator.pop(context);
                   Navigator.pop(context);
                 },

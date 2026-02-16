@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/providers/app_state_provider.dart';
+import '../../../core/providers/storage_provider.dart';
 import '../../../models/space.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -12,32 +12,36 @@ class ManageStorageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+      backgroundColor:
+          isDark ? AppColors.darkBackground : AppColors.lightBackground,
       appBar: AppBar(
-        backgroundColor: isDark ? AppColors.darkBackground : AppColors.lightBackground,
+        backgroundColor:
+            isDark ? AppColors.darkBackground : AppColors.lightBackground,
         elevation: 0,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back,
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color:
+                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
           ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           l10n.manageSpaces,
           style: TextStyle(
-            color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+            color:
+                isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
             fontSize: 18,
             fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: true,
       ),
-      body: Consumer<AppStateProvider>(
-        builder: (context, appState, child) {
-          if (appState.spaces.isEmpty) {
+      body: Consumer<StorageProvider>(
+        builder: (context, storageProvider, child) {
+          if (storageProvider.spaces.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -45,13 +49,19 @@ class ManageStorageScreen extends StatelessWidget {
                   Icon(
                     Icons.inventory_2_outlined,
                     size: 64,
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color:
+                        isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                   ),
                   const SizedBox(height: 16),
                   Text(
                     l10n.noSpacesToManage,
                     style: TextStyle(
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                      color:
+                          isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
                       fontSize: 16,
                     ),
                   ),
@@ -62,17 +72,17 @@ class ManageStorageScreen extends StatelessWidget {
 
           return ReorderableListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: appState.spaces.length,
+            itemCount: storageProvider.spaces.length,
             onReorder: (oldIndex, newIndex) {
               // Handle reordering logic
             },
             itemBuilder: (context, index) {
-              final space = appState.spaces[index];
+              final space = storageProvider.spaces[index];
               return _SpaceManageCard(
                 key: ValueKey(space.id),
                 space: space,
                 onDelete: () {
-                  _showDeleteConfirmation(context, space, appState);
+                  _showDeleteConfirmation(context, space, storageProvider);
                 },
                 isDark: isDark,
               );
@@ -86,31 +96,33 @@ class ManageStorageScreen extends StatelessWidget {
   void _showDeleteConfirmation(
     BuildContext context,
     Space space,
-    AppStateProvider appState,
+    StorageProvider storageProvider,
   ) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteSpaceQuestion),
-        content: Text(
-          l10n.deleteSpaceConfirmation(space.name),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
+      builder:
+          (context) => AlertDialog(
+            title: Text(l10n.deleteSpaceQuestion),
+            content: Text(l10n.deleteSpaceConfirmation(space.name)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(l10n.cancel),
+              ),
+              TextButton(
+                onPressed: () {
+                  storageProvider.deleteSpace(space.id);
+                  Navigator.pop(context);
+                },
+                child: Text(
+                  l10n.delete,
+                  style: const TextStyle(color: AppColors.error),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              appState.deleteSpace(space.id);
-              Navigator.pop(context);
-            },
-            child: Text(l10n.delete, style: const TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -135,19 +147,25 @@ class _SpaceManageCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : AppColors.lightCard,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: isDark ? null : [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow:
+            isDark
+                ? null
+                : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
       ),
       child: Row(
         children: [
           Icon(
             Icons.drag_handle,
-            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+            color:
+                isDark
+                    ? AppColors.darkTextSecondary
+                    : AppColors.lightTextSecondary,
           ),
           const SizedBox(width: 12),
           Container(
@@ -156,11 +174,7 @@ class _SpaceManageCard extends StatelessWidget {
               color: space.iconColor.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(
-              space.icon,
-              color: space.iconColor,
-              size: 20,
-            ),
+            child: Icon(space.icon, color: space.iconColor, size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -170,7 +184,10 @@ class _SpaceManageCard extends StatelessWidget {
                 Text(
                   space.name,
                   style: TextStyle(
-                    color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                    color:
+                        isDark
+                            ? AppColors.darkTextPrimary
+                            : AppColors.lightTextPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
                   ),
@@ -179,7 +196,10 @@ class _SpaceManageCard extends StatelessWidget {
                 Text(
                   AppLocalizations.of(context)!.itemCount(space.itemCount),
                   style: TextStyle(
-                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    color:
+                        isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary,
                     fontSize: 13,
                   ),
                 ),
@@ -188,10 +208,7 @@ class _SpaceManageCard extends StatelessWidget {
           ),
           IconButton(
             onPressed: onDelete,
-            icon: const Icon(
-              Icons.delete_outline,
-              color: AppColors.error,
-            ),
+            icon: const Icon(Icons.delete_outline, color: AppColors.error),
           ),
         ],
       ),

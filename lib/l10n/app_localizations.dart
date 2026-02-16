@@ -1579,6 +1579,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An unknown error occurred.'**
   String get errorUnknown;
+
+  /// No description provided for @rememberMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember Me'**
+  String get rememberMe;
+
+  /// No description provided for @insideSpace.
+  ///
+  /// In en, this message translates to:
+  /// **'inside'**
+  String get insideSpace;
+
+  /// No description provided for @currentPasswordIncorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'The current password you entered is incorrect.'**
+  String get currentPasswordIncorrect;
 }
 
 class _AppLocalizationsDelegate

@@ -7,7 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/providers/app_state_provider.dart';
+import '../../../core/providers/storage_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../storage/screens/storage_detail_screen.dart';
 
@@ -207,13 +207,15 @@ class _QRScannerScreenState extends State<QRScannerScreen>
   }
 
   void _handleCode(String code) {
-    final appState = context.read<AppStateProvider>();
+    final storageProvider = context.read<StorageProvider>();
     final l10n = AppLocalizations.of(context)!;
 
-    final found = appState.spaces.any((s) => s.qrCode == code || s.id == code);
+    final found = storageProvider.spaces.any(
+      (s) => s.qrCode == code || s.id == code,
+    );
 
     if (found) {
-      final space = appState.spaces.firstWhere(
+      final space = storageProvider.spaces.firstWhere(
         (s) => s.qrCode == code || s.id == code,
       );
 

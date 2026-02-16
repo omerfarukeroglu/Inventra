@@ -327,5 +327,8 @@
   "errorNetworkRequestFailed": "Network error. Check your connection.",
   "errorUserDisabled": "This user has been disabled.",
   "errorSamePassword": "New password cannot be the same as the current password.",
-  "errorUnknown": "An unknown error occurred."
+  "errorUnknown": "An unknown error occurred.",
+  "rememberMe": "Remember Me",
+  "insideSpace": "inside",
+  "currentPasswordIncorrect": "The current password you entered is incorrect."
 }

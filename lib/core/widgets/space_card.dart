@@ -7,16 +7,12 @@ class SpaceCard extends StatelessWidget {
   final Space space;
   final VoidCallback onTap;
 
-  const SpaceCard({
-    super.key,
-    required this.space,
-    required this.onTap,
-  });
+  const SpaceCard({super.key, required this.space, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -24,16 +20,17 @@ class SpaceCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? AppColors.darkCard : AppColors.lightCard,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: isDark 
-              ? null  // No shadow in dark mode
-              : [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 20,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+          boxShadow:
+              isDark
+                  ? null // No shadow in dark mode
+                  : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 20,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,9 +42,10 @@ class SpaceCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isDark 
-                        ? space.iconColor.withValues(alpha: 0.15)
-                        : space.iconColor.withValues(alpha: 0.12),
+                    color:
+                        isDark
+                            ? space.iconColor.withValues(alpha: 0.15)
+                            : space.iconColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -56,23 +54,17 @@ class SpaceCard extends StatelessWidget {
                     size: 24,
                   ),
                 ),
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: space.isActive 
-                        ? AppColors.success 
-                        : AppColors.inactiveIndicator,
-                    shape: BoxShape.circle,
-                  ),
-                ),
+                const SizedBox.shrink(),
               ],
             ),
             const Spacer(),
             Text(
               space.name,
               style: TextStyle(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                color:
+                    isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -85,7 +77,10 @@ class SpaceCard extends StatelessWidget {
                 Icon(
                   Icons.location_on,
                   size: 14,
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color:
+                      isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
@@ -95,7 +90,10 @@ class SpaceCard extends StatelessWidget {
                       return Text(
                         '${space.location} • ${space.itemCount} ${space.itemCount == 1 ? l10n.itemSingular : l10n.itemPlural}',
                         style: TextStyle(
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          color:
+                              isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
                           fontSize: 13,
                         ),
                         maxLines: 1,
@@ -116,20 +114,18 @@ class SpaceCard extends StatelessWidget {
 class NewSpaceCard extends StatelessWidget {
   final VoidCallback onTap;
 
-  const NewSpaceCard({
-    super.key,
-    required this.onTap,
-  });
+  const NewSpaceCard({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final l10n = AppLocalizations.of(context)!;
     final primaryColor = AppColors.primaryCyan;
-    final bgColor = isDark 
-        ? AppColors.primaryCyan.withValues(alpha: 0.08)
-        : AppColors.newSpaceBackground;
-    
+    final bgColor =
+        isDark
+            ? AppColors.primaryCyan.withValues(alpha: 0.08)
+            : AppColors.newSpaceBackground;
+
     return GestureDetector(
       onTap: onTap,
       child: CustomPaint(
@@ -149,16 +145,10 @@ class NewSpaceCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: isDark 
-                      ? AppColors.darkBackground
-                      : Colors.white,
+                  color: isDark ? AppColors.darkBackground : Colors.white,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(
-                  Icons.add,
-                  color: primaryColor,
-                  size: 24,
-                ),
+                child: Icon(Icons.add, color: primaryColor, size: 24),
               ),
               const SizedBox(height: 12),
               Text(
@@ -199,26 +189,28 @@ class DashedBorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
-    
+
     // Draw background
     if (backgroundColor != null) {
-      final bgPaint = Paint()
-        ..color = backgroundColor!
-        ..style = PaintingStyle.fill;
+      final bgPaint =
+          Paint()
+            ..color = backgroundColor!
+            ..style = PaintingStyle.fill;
       canvas.drawRRect(rrect, bgPaint);
     }
-    
+
     // Draw dashed border
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
-    
+    final paint =
+        Paint()
+          ..color = color
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke;
+
     final path = Path()..addRRect(rrect);
-    
+
     final dashPath = Path();
     final pathMetrics = path.computeMetrics();
-    
+
     for (final metric in pathMetrics) {
       double distance = 0;
       bool draw = true;
@@ -232,7 +224,7 @@ class DashedBorderPainter extends CustomPainter {
         draw = !draw;
       }
     }
-    
+
     canvas.drawPath(dashPath, paint);
   }
 

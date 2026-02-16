@@ -15,6 +15,7 @@ class AuthProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   bool _needsVerification = false;
+  bool _rememberMe = true;
 
   bool get isAuthenticated => _isAuthenticated;
   bool get hasCompletedOnboarding => _hasCompletedOnboarding;
@@ -24,6 +25,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get needsVerification => _needsVerification;
+  bool get rememberMe => _rememberMe;
 
   AuthProvider() {
     _init();
@@ -37,6 +39,13 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     _hasCompletedOnboarding = prefs.getBool('hasCompletedOnboarding') ?? false;
+    _rememberMe = prefs.getBool('rememberMe') ?? true;
+
+    // If "Remember Me" was unchecked, sign out on cold start
+    if (!_rememberMe && FirebaseAuth.instance.currentUser != null) {
+      await _authService.signOut();
+    }
+
     _isInitialized = true;
     notifyListeners();
   }
@@ -90,6 +99,12 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasCompletedOnboarding', true);
     notifyListeners();
+  }
+
+  Future<void> setRememberMe(bool value) async {
+    _rememberMe = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('rememberMe', value);
   }
 
   Future<bool> signInWithGoogle(AppLocalizations l10n) async {
@@ -274,7 +289,12 @@ class AuthProvider extends ChangeNotifier {
 
       return true;
     } catch (e) {
-      _errorMessage = AuthErrorMapper.getMessage(e, l10n);
+      if (e is FirebaseAuthException &&
+          (e.code == 'wrong-password' || e.code == 'invalid-credential')) {
+        _errorMessage = l10n.currentPasswordIncorrect;
+      } else {
+        _errorMessage = AuthErrorMapper.getMessage(e, l10n);
+      }
       notifyListeners();
       return false;
     } finally {

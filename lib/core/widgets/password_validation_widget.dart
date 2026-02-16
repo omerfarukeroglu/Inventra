@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../l10n/app_localizations.dart';
+import '../theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 class PasswordValidationWidget extends StatelessWidget {
   final String password;

@@ -3,9 +3,8 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
-import '../../../core/providers/app_state_provider.dart';
+import '../../../core/providers/storage_provider.dart';
 import '../../../models/space.dart';
-import '../../../models/item.dart';
 import '../../../l10n/app_localizations.dart';
 
 class AddItemScreen extends StatefulWidget {
@@ -344,19 +343,13 @@ class _AddItemScreenState extends State<AddItemScreen> {
       return;
     }
 
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final newItem = Item(
-      id: 'ITEM-$timestamp',
-      name: _nameController.text,
-      description: _notes.isEmpty ? null : _notes,
+    final storageProvider = context.read<StorageProvider>();
+    storageProvider.addItem(
       spaceId: widget.space.id,
-      spaceName: widget.space.name,
-      location: widget.space.location,
+      name: _nameController.text,
       quantity: _quantity,
-      icon: Icons.inventory_2_outlined,
+      description: _notes.isEmpty ? null : _notes,
     );
-
-    context.read<AppStateProvider>().addItem(newItem);
     Navigator.pop(context);
   }
 }

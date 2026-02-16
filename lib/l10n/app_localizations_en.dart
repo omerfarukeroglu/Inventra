@@ -786,4 +786,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnknown => 'An unknown error occurred.';
+
+  @override
+  String get rememberMe => 'Remember Me';
+
+  @override
+  String get insideSpace => 'inside';
+
+  @override
+  String get currentPasswordIncorrect =>
+      'The current password you entered is incorrect.';
 }

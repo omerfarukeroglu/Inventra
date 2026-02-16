@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/providers/auth_provider.dart';
+import '../../../core/widgets/password_validation_widget.dart';
 import '../../../l10n/app_localizations.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
@@ -28,45 +29,80 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     super.dispose();
   }
 
+  bool _isPasswordValid(String password) {
+    return password.length >= 8 &&
+        password.contains(RegExp(r'[A-Z]')) &&
+        password.contains(RegExp(r'[a-z]')) &&
+        password.contains(RegExp(r'[0-9]')) &&
+        password.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
+  }
+
   Future<void> _handleChangePassword() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
+    if (!_formKey.currentState!.validate()) return;
 
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final l10n = AppLocalizations.of(context)!;
-      final success = await authProvider.changePassword(
-        _currentPasswordController.text,
-        _newPasswordController.text,
-        l10n,
+    final l10n = AppLocalizations.of(context)!;
+
+    // Pre-check: match
+    if (_newPasswordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.passwordsDoNotMatch),
+          backgroundColor: Colors.red.shade700,
+        ),
       );
+      return;
+    }
 
-      if (mounted) {
-        setState(() => _isLoading = false);
-        final l10n = AppLocalizations.of(context)!;
+    // Pre-check: policy
+    if (!_isPasswordValid(_newPasswordController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.passwordRequirements),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
+      return;
+    }
 
-        if (success) {
-          showDialog(
-            context: context,
-            builder:
-                (context) => AlertDialog(
-                  title: Text(l10n.success),
-                  content: Text(l10n.passwordChangedSuccess),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                      },
-                      child: Text(l10n.ok),
-                    ),
-                  ],
-                ),
-          );
-        } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(l10n.failedToChangePassword)));
-        }
+    setState(() => _isLoading = true);
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final success = await authProvider.changePassword(
+      _currentPasswordController.text,
+      _newPasswordController.text,
+      l10n,
+    );
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+
+      if (success) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text(l10n.success),
+                content: Text(l10n.passwordChangedSuccess),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(l10n.ok),
+                  ),
+                ],
+              ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              authProvider.errorMessage ?? l10n.failedToChangePassword,
+            ),
+            backgroundColor: Colors.red.shade700,
+          ),
+        );
       }
     }
   }
@@ -106,7 +142,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 20),
-                // Current password field
+                // Current password
                 TextFormField(
                   controller: _currentPasswordController,
                   obscureText: _obscureCurrentPassword,
@@ -119,13 +155,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             : Icons.visibility,
                         color: hintColor,
                       ),
-                      onPressed: () {
-                        setState(
-                          () =>
-                              _obscureCurrentPassword =
-                                  !_obscureCurrentPassword,
-                        );
-                      },
+                      onPressed:
+                          () => setState(
+                            () =>
+                                _obscureCurrentPassword =
+                                    !_obscureCurrentPassword,
+                          ),
                     ),
                     hintText: l10n.currentPassword,
                   ),
@@ -137,7 +172,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                // New password field
+                // New password
                 TextFormField(
                   controller: _newPasswordController,
                   obscureText: _obscureNewPassword,
@@ -150,11 +185,10 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             : Icons.visibility,
                         color: hintColor,
                       ),
-                      onPressed: () {
-                        setState(
-                          () => _obscureNewPassword = !_obscureNewPassword,
-                        );
-                      },
+                      onPressed:
+                          () => setState(
+                            () => _obscureNewPassword = !_obscureNewPassword,
+                          ),
                     ),
                     hintText: l10n.newPassword,
                   ),
@@ -162,14 +196,25 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     if (value == null || value.isEmpty) {
                       return l10n.pleaseEnterNewPassword;
                     }
-                    if (value.length < 8) {
-                      return l10n.passwordMinLength;
+                    if (!_isPasswordValid(value)) {
+                      return l10n.passwordRequirements;
                     }
                     return null;
                   },
                 ),
+                // Real-time password validation checklist
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: _newPasswordController,
+                  builder: (context, value, child) {
+                    if (value.text.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                      child: PasswordValidationWidget(password: value.text),
+                    );
+                  },
+                ),
                 const SizedBox(height: 16),
-                // Confirm password field
+                // Confirm password
                 TextFormField(
                   controller: _confirmPasswordController,
                   obscureText: _obscureConfirmPassword,
@@ -182,13 +227,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             : Icons.visibility,
                         color: hintColor,
                       ),
-                      onPressed: () {
-                        setState(
-                          () =>
-                              _obscureConfirmPassword =
-                                  !_obscureConfirmPassword,
-                        );
-                      },
+                      onPressed:
+                          () => setState(
+                            () =>
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword,
+                          ),
                     ),
                     hintText: l10n.confirmNewPassword,
                   ),
@@ -202,26 +246,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 24),
-                // Password requirements
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    l10n.passwordRequirements,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: hintColor,
-                      fontSize: 13,
-                      height: 1.5,
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 32),
-                // Update password button
+                // Update button
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(

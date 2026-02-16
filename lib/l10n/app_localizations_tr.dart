@@ -788,4 +788,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get errorUnknown => 'Beklenmeyen bir hata oluştu.';
+
+  @override
+  String get rememberMe => 'Beni Hatırla';
+
+  @override
+  String get insideSpace => 'içerisinde';
+
+  @override
+  String get currentPasswordIncorrect => 'Girdiğiniz mevcut şifre yanlış.';
 }

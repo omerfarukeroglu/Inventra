@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/custom_button.dart';
 import '../../../core/widgets/custom_text_field.dart';
-import '../../../core/providers/app_state_provider.dart';
+import '../../../core/providers/storage_provider.dart';
 import '../../../models/space.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -15,7 +15,8 @@ class AddStorageScreen extends StatefulWidget {
 }
 
 class _AddStorageScreenState extends State<AddStorageScreen> {
-  SpaceType _selectedType = SpaceType.box;
+  StorageType _selectedType = StorageType.box;
+  bool _isSaving = false;
   final _nameController = TextEditingController();
   final _locationController = TextEditingController();
 
@@ -86,19 +87,21 @@ class _AddStorageScreenState extends State<AddStorageScreen> {
               children: [
                 Expanded(
                   child: _TypeCard(
-                    type: SpaceType.box,
-                    isSelected: _selectedType == SpaceType.box,
-                    onTap: () => setState(() => _selectedType = SpaceType.box),
+                    type: StorageType.box,
+                    isSelected: _selectedType == StorageType.box,
+                    onTap:
+                        () => setState(() => _selectedType = StorageType.box),
                     isDark: isDark,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _TypeCard(
-                    type: SpaceType.drawer,
-                    isSelected: _selectedType == SpaceType.drawer,
+                    type: StorageType.drawer,
+                    isSelected: _selectedType == StorageType.drawer,
                     onTap:
-                        () => setState(() => _selectedType = SpaceType.drawer),
+                        () =>
+                            setState(() => _selectedType = StorageType.drawer),
                     isDark: isDark,
                   ),
                 ),
@@ -109,20 +112,21 @@ class _AddStorageScreenState extends State<AddStorageScreen> {
               children: [
                 Expanded(
                   child: _TypeCard(
-                    type: SpaceType.shelf,
-                    isSelected: _selectedType == SpaceType.shelf,
+                    type: StorageType.shelf,
+                    isSelected: _selectedType == StorageType.shelf,
                     onTap:
-                        () => setState(() => _selectedType = SpaceType.shelf),
+                        () => setState(() => _selectedType = StorageType.shelf),
                     isDark: isDark,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: _TypeCard(
-                    type: SpaceType.cabinet,
-                    isSelected: _selectedType == SpaceType.cabinet,
+                    type: StorageType.cabinet,
+                    isSelected: _selectedType == StorageType.cabinet,
                     onTap:
-                        () => setState(() => _selectedType = SpaceType.cabinet),
+                        () =>
+                            setState(() => _selectedType = StorageType.cabinet),
                     isDark: isDark,
                   ),
                 ),
@@ -219,7 +223,8 @@ class _AddStorageScreenState extends State<AddStorageScreen> {
             padding: const EdgeInsets.all(20),
             child: CustomButton(
               text: l10n.createStorage,
-              onPressed: _createStorage,
+              isLoading: _isSaving,
+              onPressed: () => _createStorage(),
             ),
           ),
         ),
@@ -227,7 +232,7 @@ class _AddStorageScreenState extends State<AddStorageScreen> {
     );
   }
 
-  void _createStorage() {
+  Future<void> _createStorage() async {
     final l10n = AppLocalizations.of(context)!;
 
     if (_nameController.text.isEmpty) {
@@ -237,29 +242,38 @@ class _AddStorageScreenState extends State<AddStorageScreen> {
       return;
     }
 
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final newSpace = Space(
-      id: 'INV-$timestamp',
+    setState(() => _isSaving = true);
+
+    final success = await context.read<StorageProvider>().createSpace(
       name: _nameController.text,
       location:
           _locationController.text.isEmpty
               ? l10n.notSpecified
               : _locationController.text,
       type: _selectedType,
-      itemCount: 0,
-      qrCode: 'INV-$timestamp',
-      icon: Space.getIconForType(_selectedType),
-      iconColor: AppColors.cyan,
-      isActive: true,
     );
 
-    context.read<AppStateProvider>().addSpace(newSpace);
-    Navigator.pop(context);
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    if (success) {
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.read<StorageProvider>().errorMessage ?? l10n.errorUnknown,
+          ),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }
 
 class _TypeCard extends StatelessWidget {
-  final SpaceType type;
+  final StorageType type;
   final bool isSelected;
   final VoidCallback onTap;
   final bool isDark;
@@ -274,13 +288,13 @@ class _TypeCard extends StatelessWidget {
   String _getTypeLabel(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     switch (type) {
-      case SpaceType.box:
+      case StorageType.box:
         return l10n.box;
-      case SpaceType.drawer:
+      case StorageType.drawer:
         return l10n.drawer;
-      case SpaceType.shelf:
+      case StorageType.shelf:
         return l10n.shelf;
-      case SpaceType.cabinet:
+      case StorageType.cabinet:
         return l10n.cabinet;
     }
   }
