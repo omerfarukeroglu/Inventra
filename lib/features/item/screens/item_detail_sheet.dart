@@ -3,12 +3,18 @@ import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/storage_provider.dart';
 import '../../../models/item.dart';
+import '../../../models/space.dart';
 import '../../../l10n/app_localizations.dart';
 
 class ItemDetailSheet extends StatelessWidget {
   final Item item;
+  final Space parentSpace;
 
-  const ItemDetailSheet({super.key, required this.item});
+  const ItemDetailSheet({
+    super.key,
+    required this.item,
+    required this.parentSpace,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +107,7 @@ class ItemDetailSheet extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
-                            Icons.home_outlined,
+                            parentSpace.icon,
                             color:
                                 isDark
                                     ? AppColors.darkTextSecondary
@@ -136,22 +142,16 @@ class ItemDetailSheet extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Builder(
-                          builder: (context) {
-                            final sp = context.read<StorageProvider>();
-                            final parentSpace = sp.getSpaceById(item.spaceId);
-                            return Text(
-                              parentSpace?.location ?? '',
-                              style: TextStyle(
-                                color:
-                                    isDark
-                                        ? AppColors.darkTextPrimary
-                                        : AppColors.lightTextPrimary,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            );
-                          },
+                        Text(
+                          parentSpace.location,
+                          style: TextStyle(
+                            color:
+                                isDark
+                                    ? AppColors.darkTextPrimary
+                                    : AppColors.lightTextPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
@@ -196,42 +196,36 @@ class ItemDetailSheet extends StatelessWidget {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            Builder(
-                              builder: (context) {
-                                final sp = context.read<StorageProvider>();
-                                final parentSpace = sp.getSpaceById(
-                                  item.spaceId,
-                                );
-                                return Text(
-                                  parentSpace?.name ?? '',
-                                  style: TextStyle(
-                                    color:
-                                        isDark
-                                            ? AppColors.darkTextPrimary
-                                            : AppColors.lightTextPrimary,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 2),
                             Text(
-                              l10n.defaultLocation,
+                              parentSpace.name,
                               style: TextStyle(
                                 color:
                                     isDark
-                                        ? AppColors.darkTextSecondary
-                                        : AppColors.lightTextSecondary,
-                                fontSize: 13,
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
+                            if (item.note != null && item.note!.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                item.note!,
+                                style: TextStyle(
+                                  color:
+                                      isDark
+                                          ? AppColors.darkTextSecondary
+                                          : AppColors.lightTextSecondary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
                       Icon(
-                        Icons.inventory_2_outlined,
-                        color: AppColors.cyan,
+                        parentSpace.icon,
+                        color: parentSpace.iconColor,
                         size: 24,
                       ),
                     ],

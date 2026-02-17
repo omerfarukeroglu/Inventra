@@ -258,7 +258,18 @@ class _SearchResultsScreenState extends State<SearchResultsScreen> {
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
-                    builder: (context) => ItemDetailSheet(item: item),
+                    builder:
+                        (context) => ItemDetailSheet(
+                          item: item,
+                          parentSpace:
+                              parentSpace ??
+                              Space(
+                                id: '',
+                                name: '',
+                                location: '',
+                                type: StorageType.box,
+                              ),
+                        ),
                   );
                 },
                 isDark: isDark,

@@ -1184,6 +1184,18 @@ abstract class AppLocalizations {
   /// **'BOX ID'**
   String get boxId;
 
+  /// No description provided for @storageId.
+  ///
+  /// In en, this message translates to:
+  /// **'STORAGE ID'**
+  String get storageId;
+
+  /// No description provided for @idCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'ID Copied'**
+  String get idCopied;
+
   /// No description provided for @itemSingular.
   ///
   /// In en, this message translates to:

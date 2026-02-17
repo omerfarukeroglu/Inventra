@@ -233,6 +233,8 @@
   },
   
   "boxId": "BOX ID",
+  "storageId": "STORAGE ID",
+  "idCopied": "ID Copied",
   "itemSingular": "Item",
   "itemPlural": "Items",
   "noItemsYet": "No items yet",

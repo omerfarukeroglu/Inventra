@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -115,7 +116,7 @@ class StorageDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // QR Code Section
+              // ID Card Section
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(16),
@@ -159,7 +160,7 @@ class StorageDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            l10n.boxId,
+                            l10n.storageId,
                             style: TextStyle(
                               color:
                                   isDark
@@ -172,7 +173,7 @@ class StorageDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            currentSpace.qrCode,
+                            _maskId(currentSpace.qrCode),
                             style: TextStyle(
                               color:
                                   isDark
@@ -180,11 +181,40 @@ class StorageDetailScreen extends StatelessWidget {
                                       : AppColors.lightTextPrimary,
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
+                              fontFamily: 'monospace',
+                              letterSpacing: 1.5,
                             ),
                           ),
                         ],
                       ),
                     ),
+                    InkWell(
+                      onTap: () {
+                        Clipboard.setData(
+                          ClipboardData(text: currentSpace.qrCode),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(l10n.idCopied),
+                            duration: const Duration(seconds: 2),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: AppColors.cyan.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.copy_outlined,
+                          color: AppColors.cyan,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
                     InkWell(
                       onTap: () => _saveQRCodeToGallery(context, currentSpace),
                       child: Container(
@@ -258,7 +288,10 @@ class StorageDetailScreen extends StatelessWidget {
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
                                 builder:
-                                    (context) => ItemDetailSheet(item: item),
+                                    (context) => ItemDetailSheet(
+                                      item: item,
+                                      parentSpace: currentSpace,
+                                    ),
                               );
                             },
                           ),
@@ -802,6 +835,11 @@ class StorageDetailScreen extends StatelessWidget {
 
     return true;
   }
+
+  String _maskId(String id) =>
+      id.length > 8
+          ? '${id.substring(0, 4)}...${id.substring(id.length - 4)}'
+          : id;
 
   void _showPermissionDeniedDialog(
     BuildContext context,

@@ -578,6 +578,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get boxId => 'BOX ID';
 
   @override
+  String get storageId => 'STORAGE ID';
+
+  @override
+  String get idCopied => 'ID Copied';
+
+  @override
   String get itemSingular => 'Item';
 
   @override

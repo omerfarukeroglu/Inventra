@@ -579,6 +579,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get boxId => 'KUTU ID';
 
   @override
+  String get storageId => 'DEPOLAMA ID';
+
+  @override
+  String get idCopied => 'ID Kopyalandı';
+
+  @override
   String get itemSingular => 'Eşya';
 
   @override

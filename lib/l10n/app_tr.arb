@@ -202,6 +202,8 @@
   "itemCount": "{count} eşya",
   
   "boxId": "KUTU ID",
+  "storageId": "DEPOLAMA ID",
+  "idCopied": "ID Kopyalandı",
   "itemSingular": "Eşya",
   "itemPlural": "Eşya",
   "noItemsYet": "Henüz eşya yok",
