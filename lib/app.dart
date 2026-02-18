@@ -48,8 +48,30 @@ class InventraApp extends StatelessWidget {
           locale: appState.locale,
           home:
               !authProvider.isInitialized
-                  ? const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
+                  ? Scaffold(
+                    backgroundColor: const Color(0xFF111D2E),
+                    body: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(
+                            'assets/images/InventraLogoAndroid.png',
+                            width: 96,
+                            height: 96,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'INVENTRA',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   )
                   : !authProvider.hasCompletedOnboarding
                   ? const OnboardingScreen()

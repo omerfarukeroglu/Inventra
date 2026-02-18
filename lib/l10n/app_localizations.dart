@@ -1007,7 +1007,7 @@ abstract class AppLocalizations {
   /// No description provided for @copyright.
   ///
   /// In en, this message translates to:
-  /// **'© 2024 INVENTRA. All rights reserved.'**
+  /// **'© 2026 Inventra Inc. All rights reserved.'**
   String get copyright;
 
   /// No description provided for @madeWithLove.
@@ -1111,6 +1111,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Browse our guides'**
   String get browseGuides;
+
+  /// No description provided for @openSourceLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Source Licenses'**
+  String get openSourceLicenses;
+
+  /// No description provided for @faqDataSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Is my data secure?'**
+  String get faqDataSecurity;
+
+  /// No description provided for @faqDataSecurityAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is protected with industry-standard encryption both on your device and in the cloud. We never share your personal information with third parties.'**
+  String get faqDataSecurityAnswer;
+
+  /// No description provided for @contactSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Support'**
+  String get contactSupport;
+
+  /// No description provided for @contactSupportSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Get help via email'**
+  String get contactSupportSubtitle;
+
+  /// No description provided for @reportBug.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a Bug'**
+  String get reportBug;
+
+  /// No description provided for @reportBugSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve Inventra'**
+  String get reportBugSubtitle;
+
+  /// No description provided for @allRightsReserved.
+  ///
+  /// In en, this message translates to:
+  /// **'© 2026 Inventra Inc. All rights reserved.'**
+  String get allRightsReserved;
 
   /// No description provided for @scanQRCode.
   ///
@@ -1609,6 +1657,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The current password you entered is incorrect.'**
   String get currentPasswordIncorrect;
+
+  /// No description provided for @general.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get general;
+
+  /// No description provided for @printLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Print Label'**
+  String get printLabel;
+
+  /// No description provided for @saveQrCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Save QR Code'**
+  String get saveQrCode;
+
+  /// No description provided for @qrAccessCode.
+  ///
+  /// In en, this message translates to:
+  /// **'QR Access Code'**
+  String get qrAccessCode;
 }
 
 class _AppLocalizationsDelegate

@@ -143,7 +143,9 @@ class ItemDetailSheet extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          parentSpace.location,
+                          parentSpace.location.isEmpty
+                              ? l10n.general
+                              : parentSpace.location,
                           style: TextStyle(
                             color:
                                 isDark
@@ -240,6 +242,7 @@ class ItemDetailSheet extends StatelessWidget {
                       child: _ActionButton(
                         icon: Icons.edit_outlined,
                         label: l10n.edit,
+                        color: AppColors.storageBox,
                         onTap: () {
                           Navigator.pop(context);
                           _showEditDialog(context, item);
@@ -252,6 +255,7 @@ class ItemDetailSheet extends StatelessWidget {
                       child: _ActionButton(
                         icon: Icons.swap_horiz,
                         label: l10n.move,
+                        color: AppColors.storageShelf,
                         onTap: () {
                           Navigator.pop(context);
                           _showMoveDialog(context, item);
@@ -264,6 +268,7 @@ class ItemDetailSheet extends StatelessWidget {
                       child: _ActionButton(
                         icon: Icons.delete_outline,
                         label: l10n.delete,
+                        color: AppColors.error,
                         onTap: () {
                           Navigator.pop(context);
                           _showDeleteConfirmation(context, item);
@@ -661,6 +666,7 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final bool isDark;
+  final Color color;
   final bool isDestructive;
 
   const _ActionButton({
@@ -668,46 +674,44 @@ class _ActionButton extends StatelessWidget {
     required this.label,
     required this.onTap,
     required this.isDark,
+    required this.color,
     this.isDestructive = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final iconColor =
+    final bgColor =
         isDestructive
-            ? AppColors.error
-            : (isDark
-                ? AppColors.darkTextSecondary
-                : AppColors.lightTextSecondary);
+            ? color.withValues(alpha: isDark ? 0.14 : 0.08)
+            : color.withValues(alpha: isDark ? 0.15 : 0.09);
 
-    final backgroundColor =
+    final foregroundColor =
         isDestructive
-            ? (isDark
-                ? AppColors.error.withValues(alpha: 0.2)
-                : AppColors.lightBackground)
-            : (isDark ? AppColors.darkSurface : AppColors.lightBackground);
+            ? (isDark ? color.withValues(alpha: 0.9) : color)
+            : (isDark ? color.withValues(alpha: 0.95) : color);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: iconColor, size: 24),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: iconColor,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+    return Material(
+      color: bgColor,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            children: [
+              Icon(icon, color: foregroundColor, size: 22),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: foregroundColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

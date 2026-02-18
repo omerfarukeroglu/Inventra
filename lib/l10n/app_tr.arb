@@ -168,7 +168,7 @@
   "privacyPolicy": "Gizlilik Politikası",
   "termsOfService": "Hizmet Şartları",
   "rateUs": "Bizi Değerlendirin",
-  "copyright": "© 2024 INVENTRA. Tüm hakları saklıdır.",
+  "copyright": "© 2026 Inventra Inc. Tüm hakları saklıdır.",
   "madeWithLove": "Düzenli insanlar için ❤️ ile yapıldı",
   
   "frequentlyAskedQuestions": "Sık Sorulan Sorular",
@@ -187,6 +187,14 @@
   "liveChatAvailability": "09:00 - 18:00 arası müsait",
   "documentation": "Dokümantasyon",
   "browseGuides": "Kılavuzlarımıza göz atın",
+  "openSourceLicenses": "Açık Kaynak Lisansları",
+  "faqDataSecurity": "Verilerim güvende mi?",
+  "faqDataSecurityAnswer": "Verileriniz, cihazınızda ve bulutta endüstri standardı şifreleme ile korunmaktadır. Kişisel bilgilerinizi hiçbir zaman üçüncü taraflarla paylaşmıyoruz.",
+  "contactSupport": "Destek Ekibiyle İletişim",
+  "contactSupportSubtitle": "E-posta ile yardım alın",
+  "reportBug": "Hata Bildir",
+  "reportBugSubtitle": "Inventra'yı geliştirmemize yardım edin",
+  "allRightsReserved": "© 2026 Inventra Inc. Tüm hakları saklıdır.",
   
   "scanQRCode": "QR Kod Tara",
   "alignQRCode": "QR kodu çerçeveye hizalayın",
@@ -301,5 +309,9 @@
   "errorUnknown": "Beklenmeyen bir hata oluştu.",
   "rememberMe": "Beni Hatırla",
   "insideSpace": "içerisinde",
-  "currentPasswordIncorrect": "Girdiğiniz mevcut şifre yanlış."
+  "currentPasswordIncorrect": "Girdiğiniz mevcut şifre yanlış.",
+  "general": "Genel",
+  "printLabel": "Etiket Yazdır",
+  "saveQrCode": "QR Kodu Kaydet",
+  "qrAccessCode": "QR Erişim Kodu"
 }

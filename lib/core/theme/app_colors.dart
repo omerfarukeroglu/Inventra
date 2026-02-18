@@ -52,6 +52,12 @@ class AppColors {
   static const green = Color(0xFF22C55E);
   static const blue = Color(0xFF2196F3);
 
+  // Storage type colors — each type gets a distinct, harmonious hue
+  static const storageBox = Color(0xFF42A5F5); // Blue 400
+  static const storageDrawer = Color(0xFFFF8F00); // Amber 800
+  static const storageShelf = Color(0xFF5C6BC0); // Indigo 400
+  static const storageCabinet = Color(0xFF26A69A); // Teal 400
+
   // Notification indicator colors
   static const unreadIndicator = primaryCyan;
   static const activeIndicator = Color(0xFF22C55E); // Bright green

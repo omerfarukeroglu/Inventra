@@ -478,7 +478,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rateUs => 'Rate Us';
 
   @override
-  String get copyright => '© 2024 INVENTRA. All rights reserved.';
+  String get copyright => '© 2026 Inventra Inc. All rights reserved.';
 
   @override
   String get madeWithLove => 'Made with ❤️ for organized people';
@@ -534,6 +534,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get browseGuides => 'Browse our guides';
+
+  @override
+  String get openSourceLicenses => 'Open Source Licenses';
+
+  @override
+  String get faqDataSecurity => 'Is my data secure?';
+
+  @override
+  String get faqDataSecurityAnswer =>
+      'Your data is protected with industry-standard encryption both on your device and in the cloud. We never share your personal information with third parties.';
+
+  @override
+  String get contactSupport => 'Contact Support';
+
+  @override
+  String get contactSupportSubtitle => 'Get help via email';
+
+  @override
+  String get reportBug => 'Report a Bug';
+
+  @override
+  String get reportBugSubtitle => 'Help us improve Inventra';
+
+  @override
+  String get allRightsReserved => '© 2026 Inventra Inc. All rights reserved.';
 
   @override
   String get scanQRCode => 'Scan QR Code';
@@ -802,4 +827,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get currentPasswordIncorrect =>
       'The current password you entered is incorrect.';
+
+  @override
+  String get general => 'General';
+
+  @override
+  String get printLabel => 'Print Label';
+
+  @override
+  String get saveQrCode => 'Save QR Code';
+
+  @override
+  String get qrAccessCode => 'QR Access Code';
 }

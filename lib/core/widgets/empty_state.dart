@@ -7,6 +7,7 @@ class EmptyState extends StatelessWidget {
   final String? subtitle;
   final String? buttonText;
   final VoidCallback? onButtonPressed;
+  final Color? iconColor;
 
   const EmptyState({
     super.key,
@@ -15,16 +16,18 @@ class EmptyState extends StatelessWidget {
     this.subtitle,
     this.buttonText,
     this.onButtonPressed,
+    this.iconColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = AppColors.primaryCyan;
-    final bgColor = isDark 
-        ? AppColors.primaryCyan.withValues(alpha: 0.08)
-        : AppColors.newSpaceBackground;
-    
+    final bgColor =
+        isDark
+            ? AppColors.primaryCyan.withValues(alpha: 0.08)
+            : AppColors.newSpaceBackground;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -32,24 +35,32 @@ class EmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
-                color: isDark 
-                    ? AppColors.darkSurface 
-                    : AppColors.lightTextSecondary.withValues(alpha: 0.1),
+                color:
+                    isDark
+                        ? AppColors.darkSurface
+                        : AppColors.lightTextSecondary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
-                size: 48,
-                color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                size: 64,
+                color: (iconColor ??
+                        (isDark
+                            ? AppColors.darkTextSecondary
+                            : AppColors.lightTextSecondary))
+                    .withValues(alpha: 0.25),
               ),
             ),
             const SizedBox(height: 24),
             Text(
               title,
               style: TextStyle(
-                color: isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary,
+                color:
+                    isDark
+                        ? AppColors.darkTextPrimary
+                        : AppColors.lightTextPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
               ),
@@ -60,7 +71,10 @@ class EmptyState extends StatelessWidget {
               Text(
                 subtitle!,
                 style: TextStyle(
-                  color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  color:
+                      isDark
+                          ? AppColors.darkTextSecondary
+                          : AppColors.lightTextSecondary,
                   fontSize: 14,
                 ),
                 textAlign: TextAlign.center,
@@ -81,23 +95,23 @@ class EmptyState extends StatelessWidget {
                   ),
                   child: Container(
                     width: 200,
-                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 24,
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isDark 
-                                ? AppColors.darkBackground
-                                : Colors.white,
+                            color:
+                                isDark
+                                    ? AppColors.darkBackground
+                                    : Colors.white,
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
-                            Icons.add,
-                            color: primaryColor,
-                            size: 24,
-                          ),
+                          child: Icon(Icons.add, color: primaryColor, size: 24),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -142,26 +156,28 @@ class DashedBorderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final rrect = RRect.fromRectAndRadius(rect, Radius.circular(borderRadius));
-    
+
     // Draw background
     if (backgroundColor != null) {
-      final bgPaint = Paint()
-        ..color = backgroundColor!
-        ..style = PaintingStyle.fill;
+      final bgPaint =
+          Paint()
+            ..color = backgroundColor!
+            ..style = PaintingStyle.fill;
       canvas.drawRRect(rrect, bgPaint);
     }
-    
+
     // Draw dashed border
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
-    
+    final paint =
+        Paint()
+          ..color = color
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke;
+
     final path = Path()..addRRect(rrect);
-    
+
     final dashPath = Path();
     final pathMetrics = path.computeMetrics();
-    
+
     for (final metric in pathMetrics) {
       double distance = 0;
       bool draw = true;
@@ -175,7 +191,7 @@ class DashedBorderPainter extends CustomPainter {
         draw = !draw;
       }
     }
-    
+
     canvas.drawPath(dashPath, paint);
   }
 

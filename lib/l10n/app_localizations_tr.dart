@@ -478,7 +478,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get rateUs => 'Bizi Değerlendirin';
 
   @override
-  String get copyright => '© 2024 INVENTRA. Tüm hakları saklıdır.';
+  String get copyright => '© 2026 Inventra Inc. Tüm hakları saklıdır.';
 
   @override
   String get madeWithLove => 'Düzenli insanlar için ❤️ ile yapıldı';
@@ -535,6 +535,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get browseGuides => 'Kılavuzlarımıza göz atın';
+
+  @override
+  String get openSourceLicenses => 'Açık Kaynak Lisansları';
+
+  @override
+  String get faqDataSecurity => 'Verilerim güvende mi?';
+
+  @override
+  String get faqDataSecurityAnswer =>
+      'Verileriniz, cihazınızda ve bulutta endüstri standardı şifreleme ile korunmaktadır. Kişisel bilgilerinizi hiçbir zaman üçüncü taraflarla paylaşmıyoruz.';
+
+  @override
+  String get contactSupport => 'Destek Ekibiyle İletişim';
+
+  @override
+  String get contactSupportSubtitle => 'E-posta ile yardım alın';
+
+  @override
+  String get reportBug => 'Hata Bildir';
+
+  @override
+  String get reportBugSubtitle => 'Inventra\'yı geliştirmemize yardım edin';
+
+  @override
+  String get allRightsReserved => '© 2026 Inventra Inc. Tüm hakları saklıdır.';
 
   @override
   String get scanQRCode => 'QR Kod Tara';
@@ -803,4 +828,16 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get currentPasswordIncorrect => 'Girdiğiniz mevcut şifre yanlış.';
+
+  @override
+  String get general => 'Genel';
+
+  @override
+  String get printLabel => 'Etiket Yazdır';
+
+  @override
+  String get saveQrCode => 'QR Kodu Kaydet';
+
+  @override
+  String get qrAccessCode => 'QR Erişim Kodu';
 }

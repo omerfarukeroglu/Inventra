@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:provider/provider.dart';
 import 'dart:ui' as ui;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -116,19 +116,22 @@ class StorageDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // ID Card Section
+              // QR Access — Compact Row
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
                 decoration: BoxDecoration(
                   color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(14),
                   boxShadow:
                       isDark
                           ? null
                           : [
                             BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
@@ -136,97 +139,70 @@ class StorageDetailScreen extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
+                    // Leading — Type-colored QR icon
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color:
-                            isDark
-                                ? AppColors.darkSurface
-                                : AppColors.lightBackground,
-                        borderRadius: BorderRadius.circular(12),
+                        color: currentSpace.iconColor.withValues(
+                          alpha: isDark ? 0.18 : 0.10,
+                        ),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
-                        Icons.qr_code,
-                        color:
-                            isDark
-                                ? AppColors.darkTextSecondary
-                                : AppColors.lightTextSecondary,
-                        size: 28,
+                        Icons.qr_code_2_rounded,
+                        color: currentSpace.iconColor,
+                        size: 20,
                       ),
                     ),
-                    const SizedBox(width: 16),
+                    const SizedBox(width: 12),
+                    // Center — Title
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.storageId,
-                            style: TextStyle(
-                              color:
-                                  isDark
-                                      ? AppColors.darkTextSecondary
-                                      : AppColors.lightTextSecondary,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _maskId(currentSpace.qrCode),
-                            style: TextStyle(
-                              color:
-                                  isDark
-                                      ? AppColors.darkTextPrimary
-                                      : AppColors.lightTextPrimary,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              fontFamily: 'monospace',
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Clipboard.setData(
-                          ClipboardData(text: currentSpace.qrCode),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.idCopied),
-                            duration: const Duration(seconds: 2),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.cyan.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.copy_outlined,
-                          color: AppColors.cyan,
-                          size: 22,
+                      child: Text(
+                        l10n.qrAccessCode,
+                        style: TextStyle(
+                          color:
+                              isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    InkWell(
-                      onTap: () => _saveQRCodeToGallery(context, currentSpace),
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.cyan.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.print_outlined,
-                          color: AppColors.cyan,
-                          size: 22,
+                    // Trailing — Compact save button
+                    Material(
+                      color: AppColors.cyan.withValues(
+                        alpha: isDark ? 0.15 : 0.08,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      child: InkWell(
+                        onTap:
+                            () => _saveQRCodeToGallery(context, currentSpace),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.save_alt_rounded,
+                                color: AppColors.cyan,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                l10n.saveQrCode,
+                                style: const TextStyle(
+                                  color: AppColors.cyan,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -268,7 +244,8 @@ class StorageDetailScreen extends StatelessWidget {
                     }
                     if (items.isEmpty) {
                       return EmptyState(
-                        icon: Icons.inventory_2_outlined,
+                        icon: currentSpace.icon,
+                        iconColor: currentSpace.iconColor,
                         title: l10n.noItemsYet,
                         subtitle: l10n.addFirstItem,
                       );
@@ -835,11 +812,6 @@ class StorageDetailScreen extends StatelessWidget {
 
     return true;
   }
-
-  String _maskId(String id) =>
-      id.length > 8
-          ? '${id.substring(0, 4)}...${id.substring(id.length - 4)}'
-          : id;
 
   void _showPermissionDeniedDialog(
     BuildContext context,

@@ -131,9 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Consumer2<StorageProvider, AppStateProvider>(
           builder: (context, storageProvider, appState, child) {
             if (storageProvider.isLoading) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColors.primaryCyan),
-              );
+              return _SkeletonLoader(isDark: isDark);
             }
 
             final sortedSpaces = _sortSpaces(storageProvider.spaces);
@@ -439,6 +437,129 @@ class _SortOption extends StatelessWidget {
             color: isDark ? AppColors.darkDivider : AppColors.lightDivider,
           ),
       ],
+    );
+  }
+}
+
+class _SkeletonLoader extends StatefulWidget {
+  final bool isDark;
+  const _SkeletonLoader({required this.isDark});
+
+  @override
+  State<_SkeletonLoader> createState() => _SkeletonLoaderState();
+}
+
+class _SkeletonLoaderState extends State<_SkeletonLoader>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat();
+    _animation = Tween<double>(
+      begin: -1,
+      end: 2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, _) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header shimmer
+              _ShimmerBox(
+                width: 180,
+                height: 28,
+                isDark: widget.isDark,
+                animationValue: _animation.value,
+              ),
+              const SizedBox(height: 24),
+              _ShimmerBox(
+                width: 140,
+                height: 20,
+                isDark: widget.isDark,
+                animationValue: _animation.value,
+              ),
+              const SizedBox(height: 16),
+              // Grid of card skeletons
+              Expanded(
+                child: GridView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.85,
+                  ),
+                  itemCount: 4,
+                  itemBuilder: (context, index) {
+                    return _ShimmerBox(
+                      isDark: widget.isDark,
+                      animationValue: _animation.value,
+                      borderRadius: 16,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ShimmerBox extends StatelessWidget {
+  final double? width;
+  final double? height;
+  final bool isDark;
+  final double animationValue;
+  final double borderRadius;
+
+  const _ShimmerBox({
+    this.width,
+    this.height,
+    required this.isDark,
+    required this.animationValue,
+    this.borderRadius = 8,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final baseColor =
+        isDark ? const Color(0xFF1E2A3A) : const Color(0xFFE8ECF0);
+    final highlightColor =
+        isDark ? const Color(0xFF2A3A4E) : const Color(0xFFF5F7FA);
+
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        gradient: LinearGradient(
+          begin: Alignment(animationValue - 1, 0),
+          end: Alignment(animationValue, 0),
+          colors: [baseColor, highlightColor, baseColor],
+          stops: const [0.0, 0.5, 1.0],
+        ),
+      ),
     );
   }
 }

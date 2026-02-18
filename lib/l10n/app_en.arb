@@ -178,7 +178,7 @@
   "privacyPolicy": "Privacy Policy",
   "termsOfService": "Terms of Service",
   "rateUs": "Rate Us",
-  "copyright": "© 2024 INVENTRA. All rights reserved.",
+  "copyright": "© 2026 Inventra Inc. All rights reserved.",
   "madeWithLove": "Made with ❤️ for organized people",
   
   "frequentlyAskedQuestions": "Frequently Asked Questions",
@@ -197,6 +197,14 @@
   "liveChatAvailability": "Available 9 AM - 6 PM",
   "documentation": "Documentation",
   "browseGuides": "Browse our guides",
+  "openSourceLicenses": "Open Source Licenses",
+  "faqDataSecurity": "Is my data secure?",
+  "faqDataSecurityAnswer": "Your data is protected with industry-standard encryption both on your device and in the cloud. We never share your personal information with third parties.",
+  "contactSupport": "Contact Support",
+  "contactSupportSubtitle": "Get help via email",
+  "reportBug": "Report a Bug",
+  "reportBugSubtitle": "Help us improve Inventra",
+  "allRightsReserved": "© 2026 Inventra Inc. All rights reserved.",
   
   "scanQRCode": "Scan QR Code",
   "alignQRCode": "Align QR code within frame",
@@ -332,5 +340,9 @@
   "errorUnknown": "An unknown error occurred.",
   "rememberMe": "Remember Me",
   "insideSpace": "inside",
-  "currentPasswordIncorrect": "The current password you entered is incorrect."
+  "currentPasswordIncorrect": "The current password you entered is incorrect.",
+  "general": "General",
+  "printLabel": "Print Label",
+  "saveQrCode": "Save QR Code",
+  "qrAccessCode": "QR Access Code"
 }

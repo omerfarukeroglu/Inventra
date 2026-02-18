@@ -87,13 +87,13 @@ class Space {
   static Color getColorForType(StorageType type) {
     switch (type) {
       case StorageType.box:
-        return AppColors.cyan;
+        return AppColors.storageBox;
       case StorageType.drawer:
-        return AppColors.orange;
+        return AppColors.storageDrawer;
       case StorageType.shelf:
-        return AppColors.teal;
+        return AppColors.storageShelf;
       case StorageType.cabinet:
-        return AppColors.cyan;
+        return AppColors.storageCabinet;
     }
   }
 
