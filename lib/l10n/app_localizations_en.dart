@@ -839,4 +839,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrAccessCode => 'QR Access Code';
+
+  @override
+  String get selectAnIcon => 'Select an Icon';
+
+  @override
+  String get iconsLoadFailed => 'Icons could not be loaded';
+
+  @override
+  String get categoryFood => 'Food';
+
+  @override
+  String get categoryElectronics => 'Electronics';
+
+  @override
+  String get categoryClothes => 'Clothes';
+
+  @override
+  String get categoryHobbyArt => 'Hobby & Art';
+
+  @override
+  String get categoryHygiene => 'Hygiene & Health';
+
+  @override
+  String get categoryKitchen => 'Kitchen';
+
+  @override
+  String get categoryStationery => 'Stationery';
+
+  @override
+  String get categoryTools => 'Tools';
 }

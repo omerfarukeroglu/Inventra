@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/providers/storage_provider.dart';
@@ -63,17 +64,45 @@ class ItemDetailSheet extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Item Name
-                Text(
-                  item.name,
-                  style: TextStyle(
-                    color:
-                        isDark
-                            ? AppColors.darkTextPrimary
-                            : AppColors.lightTextPrimary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                // Item Name with optional SVG icon
+                Row(
+                  children: [
+                    if (item.iconPath != null) ...[
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color:
+                              isDark
+                                  ? AppColors.darkSurface
+                                  : AppColors.lightBackground,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: SvgPicture.asset(
+                          item.iconPath!,
+                          width: 28,
+                          height: 28,
+                          colorFilter: ColorFilter.mode(
+                            isDark ? Colors.white : const Color(0xFF1E1E1E),
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      child: Text(
+                        item.name,
+                        style: TextStyle(
+                          color:
+                              isDark
+                                  ? AppColors.darkTextPrimary
+                                  : AppColors.lightTextPrimary,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 if (item.description != null &&
                     item.description!.isNotEmpty) ...[

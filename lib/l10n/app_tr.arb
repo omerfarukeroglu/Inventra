@@ -313,5 +313,15 @@
   "general": "Genel",
   "printLabel": "Etiket Yazdır",
   "saveQrCode": "QR Kodu Kaydet",
-  "qrAccessCode": "QR Erişim Kodu"
+  "qrAccessCode": "QR Erişim Kodu",
+  "selectAnIcon": "Bir İkon Seçin",
+  "iconsLoadFailed": "İkonlar yüklenemedi",
+  "categoryFood": "Yiyecek",
+  "categoryElectronics": "Elektronik",
+  "categoryClothes": "Kıyafet",
+  "categoryHobbyArt": "Hobi & Sanat",
+  "categoryHygiene": "Hijyen & Sağlık",
+  "categoryKitchen": "Mutfak",
+  "categoryStationery": "Kırtasiye",
+  "categoryTools": "Araç & Gereç"
 }

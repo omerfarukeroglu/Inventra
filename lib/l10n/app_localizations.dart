@@ -1681,6 +1681,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'QR Access Code'**
   String get qrAccessCode;
+
+  /// No description provided for @selectAnIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an Icon'**
+  String get selectAnIcon;
+
+  /// No description provided for @iconsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Icons could not be loaded'**
+  String get iconsLoadFailed;
+
+  /// No description provided for @categoryFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get categoryFood;
+
+  /// No description provided for @categoryElectronics.
+  ///
+  /// In en, this message translates to:
+  /// **'Electronics'**
+  String get categoryElectronics;
+
+  /// No description provided for @categoryClothes.
+  ///
+  /// In en, this message translates to:
+  /// **'Clothes'**
+  String get categoryClothes;
+
+  /// No description provided for @categoryHobbyArt.
+  ///
+  /// In en, this message translates to:
+  /// **'Hobby & Art'**
+  String get categoryHobbyArt;
+
+  /// No description provided for @categoryHygiene.
+  ///
+  /// In en, this message translates to:
+  /// **'Hygiene & Health'**
+  String get categoryHygiene;
+
+  /// No description provided for @categoryKitchen.
+  ///
+  /// In en, this message translates to:
+  /// **'Kitchen'**
+  String get categoryKitchen;
+
+  /// No description provided for @categoryStationery.
+  ///
+  /// In en, this message translates to:
+  /// **'Stationery'**
+  String get categoryStationery;
+
+  /// No description provided for @categoryTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Tools'**
+  String get categoryTools;
 }
 
 class _AppLocalizationsDelegate

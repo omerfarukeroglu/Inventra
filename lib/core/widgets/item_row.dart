@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_colors.dart';
 import '../providers/storage_provider.dart';
@@ -47,17 +48,30 @@ class ItemRow extends StatelessWidget {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color:
-                    isDark ? AppColors.darkSurface : AppColors.lightBackground,
+                    isDark
+                        ? Colors.white.withValues(alpha: 0.1)
+                        : AppColors.lightBackground,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                item.icon,
-                color:
-                    isDark
-                        ? AppColors.darkTextSecondary
-                        : AppColors.lightTextSecondary,
-                size: 24,
-              ),
+              child:
+                  item.iconPath != null
+                      ? SvgPicture.asset(
+                        item.iconPath!,
+                        width: 24,
+                        height: 24,
+                        colorFilter: ColorFilter.mode(
+                          isDark ? Colors.white : const Color(0xFF1E1E1E),
+                          BlendMode.srcIn,
+                        ),
+                      )
+                      : Icon(
+                        item.icon,
+                        color:
+                            isDark
+                                ? AppColors.darkTextSecondary
+                                : AppColors.lightTextSecondary,
+                        size: 24,
+                      ),
             ),
             const SizedBox(width: 16),
             Expanded(

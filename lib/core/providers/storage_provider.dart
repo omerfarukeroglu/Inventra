@@ -129,6 +129,7 @@ class StorageProvider extends ChangeNotifier {
     int quantity = 1,
     String? description,
     String? note,
+    String? iconPath,
   }) async {
     if (_uid == null) return false;
     try {
@@ -140,6 +141,7 @@ class StorageProvider extends ChangeNotifier {
         quantity: quantity,
         description: description,
         note: note,
+        iconPath: iconPath,
       );
       return true;
     } catch (e) {

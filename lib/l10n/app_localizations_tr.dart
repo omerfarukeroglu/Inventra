@@ -840,4 +840,34 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get qrAccessCode => 'QR Erişim Kodu';
+
+  @override
+  String get selectAnIcon => 'Bir İkon Seçin';
+
+  @override
+  String get iconsLoadFailed => 'İkonlar yüklenemedi';
+
+  @override
+  String get categoryFood => 'Yiyecek';
+
+  @override
+  String get categoryElectronics => 'Elektronik';
+
+  @override
+  String get categoryClothes => 'Kıyafet';
+
+  @override
+  String get categoryHobbyArt => 'Hobi & Sanat';
+
+  @override
+  String get categoryHygiene => 'Hijyen & Sağlık';
+
+  @override
+  String get categoryKitchen => 'Mutfak';
+
+  @override
+  String get categoryStationery => 'Kırtasiye';
+
+  @override
+  String get categoryTools => 'Araç & Gereç';
 }

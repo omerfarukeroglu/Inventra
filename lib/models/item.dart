@@ -8,6 +8,7 @@ class Item {
   final String spaceId;
   final int quantity;
   final String? note;
+  final String? iconPath;
   final DateTime createdAt;
   final DateTime? updatedAt;
 
@@ -18,6 +19,7 @@ class Item {
     required this.spaceId,
     this.quantity = 1,
     this.note,
+    this.iconPath,
     DateTime? createdAt,
     this.updatedAt,
   }) : createdAt = createdAt ?? DateTime.now();
@@ -32,6 +34,7 @@ class Item {
       spaceId: map['spaceId'] as String? ?? '',
       quantity: map['quantity'] as int? ?? 1,
       note: map['note'] as String?,
+      iconPath: map['iconPath'] as String?,
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate(),
     );
@@ -44,6 +47,7 @@ class Item {
       'spaceId': spaceId,
       'quantity': quantity,
       if (note != null) 'note': note,
+      if (iconPath != null) 'iconPath': iconPath,
       'createdAt': Timestamp.fromDate(createdAt),
       if (updatedAt != null) 'updatedAt': Timestamp.fromDate(updatedAt!),
     };
@@ -56,6 +60,7 @@ class Item {
     String? spaceId,
     int? quantity,
     String? note,
+    String? iconPath,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -66,6 +71,7 @@ class Item {
       spaceId: spaceId ?? this.spaceId,
       quantity: quantity ?? this.quantity,
       note: note ?? this.note,
+      iconPath: iconPath ?? this.iconPath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );

@@ -26,6 +26,7 @@ dependencies:
   firebase_auth: ^6.1.4
   google_sign_in: ^6.2.2
   cloud_firestore: ^6.1.2
+  flutter_svg: ^2.2.3
 
 dev_dependencies:
   flutter_test:
@@ -40,6 +41,14 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/icons/clothes_icons/
+    - assets/icons/electronics_icons/
+    - assets/icons/food_icons/
+    - assets/icons/hobby_art_icons/
+    - assets/icons/hygiene_healty_icons/
+    - assets/icons/kitchen_icons/
+    - assets/icons/stationary_icons/
+    - assets/icons/tools_icons/
 
 flutter_launcher_icons:
   # Android Configuration

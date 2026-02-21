@@ -344,5 +344,15 @@
   "general": "General",
   "printLabel": "Print Label",
   "saveQrCode": "Save QR Code",
-  "qrAccessCode": "QR Access Code"
+  "qrAccessCode": "QR Access Code",
+  "selectAnIcon": "Select an Icon",
+  "iconsLoadFailed": "Icons could not be loaded",
+  "categoryFood": "Food",
+  "categoryElectronics": "Electronics",
+  "categoryClothes": "Clothes",
+  "categoryHobbyArt": "Hobby & Art",
+  "categoryHygiene": "Hygiene & Health",
+  "categoryKitchen": "Kitchen",
+  "categoryStationery": "Stationery",
+  "categoryTools": "Tools"
 }

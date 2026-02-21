@@ -6,6 +6,8 @@ import '../../../core/widgets/custom_text_field.dart';
 import '../../../core/providers/storage_provider.dart';
 import '../../../models/space.dart';
 import '../../../l10n/app_localizations.dart';
+import 'package:inventra/core/widgets/icon_picker_sheet.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class AddItemScreen extends StatefulWidget {
   final Space space;
@@ -20,6 +22,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final _nameController = TextEditingController();
   int _quantity = 1;
   String _notes = '';
+  String? _selectedIconPath;
 
   @override
   void dispose() {
@@ -88,8 +91,8 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.inventory_2_outlined,
-                      color: AppColors.cyan,
+                      widget.space.icon,
+                      color: widget.space.iconColor,
                       size: 18,
                     ),
                     const SizedBox(width: 8),
@@ -144,18 +147,44 @@ class _AddItemScreenState extends State<AddItemScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: isDark ? AppColors.darkCard : AppColors.lightCard,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.grid_view,
-                    color:
-                        isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
+                InkWell(
+                  onTap:
+                      () => showIconPickerBottomSheet(context, (path) {
+                        setState(() => _selectedIconPath = path);
+                      }),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? AppColors.darkCard : AppColors.lightCard,
+                      borderRadius: BorderRadius.circular(12),
+                      border:
+                          _selectedIconPath != null
+                              ? Border.all(
+                                color: AppColors.cyan.withValues(alpha: 0.4),
+                                width: 1.5,
+                              )
+                              : null,
+                    ),
+                    child:
+                        _selectedIconPath != null
+                            ? SvgPicture.asset(
+                              _selectedIconPath!,
+                              colorFilter: ColorFilter.mode(
+                                isDark ? Colors.white : const Color(0xFF1E1E1E),
+                                BlendMode.srcIn,
+                              ),
+                            )
+                            : Icon(
+                              Icons.grid_view,
+                              color:
+                                  isDark
+                                      ? AppColors.darkTextSecondary
+                                      : AppColors.lightTextSecondary,
+                              size: 24,
+                            ),
                   ),
                 ),
               ],
@@ -349,6 +378,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
       name: _nameController.text,
       quantity: _quantity,
       description: _notes.isEmpty ? null : _notes,
+      iconPath: _selectedIconPath,
     );
     Navigator.pop(context);
   }

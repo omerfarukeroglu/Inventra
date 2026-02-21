@@ -57,10 +57,10 @@
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
     <key>NSCameraUsageDescription</key>
-    <string>INVENTRA needs camera access to scan QR codes on your storage boxes</string>
+    <string>Kamera izni, QR kodlarını taramak ve envanter ürünlerini hızlıca bulmak için gereklidir.</string>
     <key>NSPhotoLibraryAddUsageDescription</key>
-    <string>INVENTRA needs access to save QR codes to your photo library</string>
+    <string>Fotoğraf galerisi izni, QR kodlarını kaydetmek için gereklidir.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>INVENTRA needs access to your photo library to save QR codes</string>
+    <string>Fotoğraf galerisi izni, ürün fotoğraflarını yüklemek ve QR kodlarını kaydetmek için gereklidir.</string>
 </dict>
 </plist>

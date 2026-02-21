@@ -94,6 +94,7 @@ class StorageService {
     int quantity = 1,
     String? description,
     String? note,
+    String? iconPath,
   }) async {
     final batch = _db.batch();
 
@@ -104,6 +105,7 @@ class StorageService {
       'quantity': quantity,
       if (description != null) 'description': description,
       if (note != null) 'note': note,
+      if (iconPath != null) 'iconPath': iconPath,
       'createdAt': FieldValue.serverTimestamp(),
     });
 
