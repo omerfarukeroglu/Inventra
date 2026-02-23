@@ -52,20 +52,27 @@ class AuthProvider extends ChangeNotifier {
 
   // Update local state based on Firebase Auth state
   Future<void> _onAuthStateChanged(User? user) async {
-    if (user != null) {
-      await user.reload(); // Ensure we have the latest data
-      if (user.emailVerified) {
-        _isAuthenticated = true;
-        _userEmail = user.email;
-        _userName = user.displayName;
-        _needsVerification = false;
+    try {
+      if (user != null) {
+        await user.reload();
+        if (user.emailVerified) {
+          _isAuthenticated = true;
+          _userEmail = user.email;
+          _userName = user.displayName;
+          _needsVerification = false;
+        } else {
+          _isAuthenticated = false;
+          _userEmail = null;
+          _userName = null;
+          _needsVerification = true;
+        }
       } else {
         _isAuthenticated = false;
         _userEmail = null;
         _userName = null;
-        _needsVerification = true;
+        _needsVerification = false;
       }
-    } else {
+    } catch (_) {
       _isAuthenticated = false;
       _userEmail = null;
       _userName = null;
@@ -113,7 +120,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       final credential = await _authService.signInWithGoogle();
       if (credential == null) {
-        _errorMessage = "Google girişi iptal edildi.";
+        _errorMessage = l10n.errorGoogleSignInCancelled;
         return false;
       }
       return true;
@@ -146,8 +153,7 @@ class AuthProvider extends ChangeNotifier {
 
       final user = FirebaseAuth.instance.currentUser;
       if (user != null && !user.emailVerified) {
-        _errorMessage =
-            "Giriş yapıldı ancak mail adresiniz doğrulanmadı. Lütfen mailinizi kontrol edin.";
+        _errorMessage = l10n.errorEmailNotVerified;
         _needsVerification = true;
         notifyListeners();
         return false;
@@ -355,7 +361,7 @@ class AuthProvider extends ChangeNotifier {
         // Let's assume if signInWithGoogle succeeds, we are good.
         final credential = await _authService.signInWithGoogle();
         if (credential == null) {
-          _errorMessage = "Google doğrulama başarısız veya iptal edildi.";
+          _errorMessage = l10n.errorGoogleVerificationFailed;
           return false;
         }
       } else {

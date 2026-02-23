@@ -13,15 +13,24 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> {
   bool _isAuthChecked = false;
   bool _navigated = false;
+  bool _showProgress = false; // Progress bar visibility state
 
   @override
   void initState() {
     super.initState();
     _checkAuth();
+
+    // 800ms logo animasyonundan sonra 500ms daha bekle, ardından progress barı göster
+    Future.delayed(const Duration(milliseconds: 1300), () {
+      if (mounted) {
+        setState(() {
+          _showProgress = true;
+        });
+      }
+    });
   }
 
   Future<void> _checkAuth() async {
@@ -69,10 +78,12 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    // ScaffoldBackgroundColor garantili milimetrik eşleşme sağlar (özellikle karanlık/aydınlık modlarında tam uyum)
+    final scaffoldBgColor = Theme.of(context).scaffoldBackgroundColor;
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(
-        0xFF111D2E,
-      ), // Dark surface / Brand dark background
+      backgroundColor: scaffoldBgColor,
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -92,13 +103,37 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 );
               },
-              child: Image.asset('assets/images/logo_Icon.png', width: 160),
+              child: Image.asset(
+                'assets/images/icon_final.png',
+                width: 160,
+                cacheWidth: 320,
+                filterQuality: FilterQuality.high,
+                isAntiAlias: true,
+              ),
             ),
-            const SizedBox(height: 32),
-            // Customizing CircularProgressIndicator to match the brand.
-            const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              strokeWidth: 3,
+            const SizedBox(height: 48), // Logonun 48px altı
+            AnimatedOpacity(
+              duration: const Duration(milliseconds: 500),
+              opacity: _showProgress ? 1.0 : 0.0, // Fade-in efekti
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4), // İnce oval köşeler
+                child: SizedBox(
+                  width:
+                      MediaQuery.of(context).size.width * 0.35, // Ekranın %35'i
+                  height: 3.0, // İnce (YouTube tarzı)
+                  child: LinearProgressIndicator(
+                    backgroundColor:
+                        isDarkMode
+                            ? Colors.white.withValues(alpha: 0.1)
+                            : Colors.black.withValues(alpha: 0.05),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(
+                        context,
+                      ).primaryColor, // Turkuaz/Mavi ana marka rengi
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

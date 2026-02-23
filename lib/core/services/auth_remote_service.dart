@@ -36,7 +36,6 @@ class AuthRemoteService {
       // Sign in to Firebase with the Google User Credential
       return await _auth.signInWithCredential(credential);
     } catch (e) {
-      print("Error signing in with Google: $e");
       rethrow;
     }
   }
@@ -52,7 +51,6 @@ class AuthRemoteService {
         password: password,
       );
     } catch (e) {
-      print("Error signing in with Email: $e");
       rethrow;
     }
   }
@@ -75,7 +73,6 @@ class AuthRemoteService {
 
       return userCredential;
     } catch (e) {
-      print("Error creating user: $e");
       rethrow;
     }
   }
@@ -116,7 +113,6 @@ class AuthRemoteService {
     try {
       await _auth.sendPasswordResetEmail(email: email);
     } catch (e) {
-      print("Error sending password reset email: $e");
       rethrow;
     }
   }
@@ -132,7 +128,6 @@ class AuthRemoteService {
         await user.delete();
       }
     } catch (e) {
-      print("Error deleting user account: $e");
       rethrow;
     }
   }
@@ -143,7 +138,6 @@ class AuthRemoteService {
       await _googleSignIn.signOut();
       await _auth.signOut();
     } catch (e) {
-      print("Error signing out: $e");
       rethrow;
     }
   }

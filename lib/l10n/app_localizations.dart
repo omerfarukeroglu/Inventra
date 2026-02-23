@@ -1741,6 +1741,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tools'**
   String get categoryTools;
+
+  /// No description provided for @errorGoogleSignInCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in was cancelled.'**
+  String get errorGoogleSignInCancelled;
+
+  /// No description provided for @errorEmailNotVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in successful, but your email is not verified. Please check your inbox.'**
+  String get errorEmailNotVerified;
+
+  /// No description provided for @errorGoogleVerificationFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Google verification failed or was cancelled.'**
+  String get errorGoogleVerificationFailed;
 }
 
 class _AppLocalizationsDelegate

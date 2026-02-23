@@ -453,5 +453,3 @@ class _SortOption extends StatelessWidget {
     );
   }
 }
-
-// _SkeletonLoader removed

@@ -41,6 +41,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/icon_final.png
     - assets/icons/
     - assets/icons/clothes_icons/
     - assets/icons/electronics_icons/

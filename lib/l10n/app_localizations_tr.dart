@@ -870,4 +870,15 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get categoryTools => 'Araç & Gereç';
+
+  @override
+  String get errorGoogleSignInCancelled => 'Google girişi iptal edildi.';
+
+  @override
+  String get errorEmailNotVerified =>
+      'Giriş yapıldı ancak e-posta adresiniz doğrulanmadı. Lütfen gelen kutunuzu kontrol edin.';
+
+  @override
+  String get errorGoogleVerificationFailed =>
+      'Google doğrulama başarısız oldu veya iptal edildi.';
 }

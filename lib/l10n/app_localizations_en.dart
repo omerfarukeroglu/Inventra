@@ -869,4 +869,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categoryTools => 'Tools';
+
+  @override
+  String get errorGoogleSignInCancelled => 'Google sign-in was cancelled.';
+
+  @override
+  String get errorEmailNotVerified =>
+      'Sign-in successful, but your email is not verified. Please check your inbox.';
+
+  @override
+  String get errorGoogleVerificationFailed =>
+      'Google verification failed or was cancelled.';
 }

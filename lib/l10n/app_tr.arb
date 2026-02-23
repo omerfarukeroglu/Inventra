@@ -323,5 +323,9 @@
   "categoryHygiene": "Hijyen & Sağlık",
   "categoryKitchen": "Mutfak",
   "categoryStationery": "Kırtasiye",
-  "categoryTools": "Araç & Gereç"
+  "categoryTools": "Araç & Gereç",
+
+  "errorGoogleSignInCancelled": "Google girişi iptal edildi.",
+  "errorEmailNotVerified": "Giriş yapıldı ancak e-posta adresiniz doğrulanmadı. Lütfen gelen kutunuzu kontrol edin.",
+  "errorGoogleVerificationFailed": "Google doğrulama başarısız oldu veya iptal edildi."
 }

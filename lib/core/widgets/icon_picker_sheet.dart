@@ -71,7 +71,7 @@ class _IconSelectionSheetState extends State<_IconSelectionSheet> {
   @override
   void initState() {
     super.initState();
-    _loadIconsDynamically();
+    _loadAndValidateIcons();
   }
 
   @override
@@ -80,12 +80,15 @@ class _IconSelectionSheetState extends State<_IconSelectionSheet> {
     super.dispose();
   }
 
-  Future<void> _loadIconsDynamically() async {
+  /// Tüm SVG asset'lerini tarar, içeriklerini okur ve
+  /// gerçek vektör olmayanları (embedded raster) ayıklar.
+  Future<void> _loadAndValidateIcons() async {
     try {
-      final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-      final allAssets = assetManifest.listAssets();
+      final manifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final allAssets = manifest.listAssets();
 
-      final Map<String, List<String>> tempIcons = {
+      // 1) Tüm .svg asset yollarını kategorize et
+      final Map<String, List<String>> candidates = {
         for (final key in _folderKeys) key: [],
       };
 
@@ -93,30 +96,56 @@ class _IconSelectionSheetState extends State<_IconSelectionSheet> {
         if (!path.startsWith('assets/icons/') || !path.endsWith('.svg')) {
           continue;
         }
-        for (final folderKey in _folderKeys) {
-          if (path.contains('/$folderKey/')) {
-            tempIcons[folderKey]!.add(path);
+        for (final folder in _folderKeys) {
+          if (path.contains('/$folder/')) {
+            candidates[folder]!.add(path);
             break;
           }
         }
       }
 
+      // 2) Her dosyanın içeriğini oku ve geçersizleri filtrele
+      final Map<String, List<String>> validated = {
+        for (final key in _folderKeys) key: [],
+      };
+
+      for (final folder in _folderKeys) {
+        final paths = candidates[folder]!;
+        if (paths.isEmpty) continue;
+
+        // Paralel okuma — tüm dosyaları aynı anda kontrol et
+        final results = await Future.wait(
+          paths.map((p) async {
+            try {
+              final content = await rootBundle.loadString(p);
+              // Embedded raster PNG/JPG içeren SVG'leri reddet
+              if (content.contains('data:image') ||
+                  content.contains('<image')) {
+                return null; // Geçersiz
+              }
+              return p; // Geçerli vektör SVG
+            } catch (_) {
+              return null; // Okunamayan dosya
+            }
+          }),
+        );
+
+        for (final path in results) {
+          if (path != null) validated[folder]!.add(path);
+        }
+      }
+
       if (mounted) {
         setState(() {
-          categoryIcons = tempIcons;
+          categoryIcons = validated;
+          isLoading = false;
         });
       }
     } catch (e, stack) {
-      debugPrint('❌ Icon picker manifest error: $e');
-      debugPrint('$stack');
+      debugPrint('❌ Icon picker error: $e\n$stack');
       if (mounted) {
         setState(() {
           errorMessage = e.toString();
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
           isLoading = false;
         });
       }
@@ -190,7 +219,7 @@ class _IconSelectionSheetState extends State<_IconSelectionSheet> {
               ),
             ),
 
-            // Kategori chip'leri — PageController ile senkronize
+            // Kategori chip'leri
             SizedBox(
               height: 50,
               child: ListView.builder(
@@ -206,22 +235,20 @@ class _IconSelectionSheetState extends State<_IconSelectionSheet> {
                       label: Text(_categoryLabel(folderKey, l10n)),
                       selected: isSelected,
                       onSelected: (selected) {
-                        if (selected) {
-                          setState(() => _selectedIndex = index);
-                          final currentPage =
-                              _pageController.page?.round() ?? 0;
-                          final distance = (index - currentPage).abs();
-                          if (distance > 1) {
-                            final jumpTo =
-                                index > currentPage ? index - 1 : index + 1;
-                            _pageController.jumpToPage(jumpTo);
-                          }
-                          _pageController.animateToPage(
-                            index,
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
+                        if (!selected) return;
+                        setState(() => _selectedIndex = index);
+                        final currentPage = _pageController.page?.round() ?? 0;
+                        final distance = (index - currentPage).abs();
+                        if (distance > 1) {
+                          _pageController.jumpToPage(
+                            index > currentPage ? index - 1 : index + 1,
                           );
                         }
+                        _pageController.animateToPage(
+                          index,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
                       },
                       selectedColor: AppColors.cyan.withValues(alpha: 0.2),
                       labelStyle: TextStyle(
@@ -236,17 +263,22 @@ class _IconSelectionSheetState extends State<_IconSelectionSheet> {
             ),
             const Divider(),
 
-            // PageView — kaydırarak kategori geçişi
+            // İkon grid'leri — sayfa bazlı
             Expanded(
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: _folderKeys.length,
-                onPageChanged: (index) {
-                  setState(() => _selectedIndex = index);
-                },
+                onPageChanged: (i) => setState(() => _selectedIndex = i),
                 itemBuilder: (context, pageIndex) {
-                  final folderKey = _folderKeys[pageIndex];
-                  final icons = categoryIcons[folderKey] ?? [];
+                  final icons = categoryIcons[_folderKeys[pageIndex]] ?? [];
+                  if (icons.isEmpty) {
+                    return Center(
+                      child: Text(
+                        l10n.iconsLoadFailed,
+                        style: TextStyle(color: Colors.grey.shade500),
+                      ),
+                    );
+                  }
                   return GridView.builder(
                     padding: const EdgeInsets.all(16),
                     gridDelegate:
@@ -257,40 +289,14 @@ class _IconSelectionSheetState extends State<_IconSelectionSheet> {
                         ),
                     itemCount: icons.length,
                     itemBuilder: (context, index) {
-                      final iconPath = icons[index];
-                      return InkWell(
+                      return _SafeIconTile(
+                        iconPath: icons[index],
+                        iconColor: iconColor,
+                        isDark: isDark,
                         onTap: () {
-                          widget.onIconSelected(iconPath);
+                          widget.onIconSelected(icons[index]);
                           Navigator.pop(context);
                         },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color:
-                                isDark
-                                    ? Colors.white.withValues(alpha: 0.06)
-                                    : Colors.grey.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: SvgPicture.asset(
-                            iconPath,
-                            colorFilter: ColorFilter.mode(
-                              iconColor,
-                              BlendMode.srcIn,
-                            ),
-                            placeholderBuilder:
-                                (_) => const Center(
-                                  child: SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                ),
-                          ),
-                        ),
                       );
                     },
                   );
@@ -300,6 +306,86 @@ class _IconSelectionSheetState extends State<_IconSelectionSheet> {
           ],
         );
       },
+    );
+  }
+}
+
+/// Tek bir ikon kutucuğu — render hatası olursa kendini gizler.
+/// Hafif fade-in ile profesyonel geçiş sağlar.
+class _SafeIconTile extends StatefulWidget {
+  final String iconPath;
+  final Color iconColor;
+  final bool isDark;
+  final VoidCallback onTap;
+
+  const _SafeIconTile({
+    required this.iconPath,
+    required this.iconColor,
+    required this.isDark,
+    required this.onTap,
+  });
+
+  @override
+  State<_SafeIconTile> createState() => _SafeIconTileState();
+}
+
+class _SafeIconTileState extends State<_SafeIconTile>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _fadeCtrl;
+  late final Animation<double> _fadeAnim;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeCtrl = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _fadeAnim = CurvedAnimation(parent: _fadeCtrl, curve: Curves.easeIn);
+    _fadeCtrl.forward();
+  }
+
+  @override
+  void dispose() {
+    _fadeCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Render hatası varsa tamamen gizle — boş kare bırakma
+    if (_hasError) return const SizedBox.shrink();
+
+    return FadeTransition(
+      opacity: _fadeAnim,
+      child: InkWell(
+        onTap: widget.onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color:
+                widget.isDark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.grey.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: SvgPicture.asset(
+            widget.iconPath,
+            colorFilter: ColorFilter.mode(widget.iconColor, BlendMode.srcIn),
+            placeholderBuilder: (_) => const SizedBox.shrink(),
+            // Son savunma hattı: flutter_svg parse edemezse gizle
+            errorBuilder: (_, __, ___) {
+              // Bir sonraki frame'de kendini gizle
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) setState(() => _hasError = true);
+              });
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      ),
     );
   }
 }

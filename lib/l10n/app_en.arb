@@ -354,5 +354,9 @@
   "categoryHygiene": "Hygiene & Health",
   "categoryKitchen": "Kitchen",
   "categoryStationery": "Stationery",
-  "categoryTools": "Tools"
+  "categoryTools": "Tools",
+
+  "errorGoogleSignInCancelled": "Google sign-in was cancelled.",
+  "errorEmailNotVerified": "Sign-in successful, but your email is not verified. Please check your inbox.",
+  "errorGoogleVerificationFailed": "Google verification failed or was cancelled."
 }
