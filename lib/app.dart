@@ -11,8 +11,7 @@ import 'features/home/screens/home_screen.dart';
 import 'features/search/screens/search_results_screen.dart';
 import 'features/scanner/screens/qr_scanner_screen.dart';
 import 'features/profile/screens/profile_screen.dart';
-import 'features/onboarding/screens/onboarding_screen.dart';
-import 'features/auth/screens/login_screen.dart';
+import 'features/splash/screens/splash_screen.dart';
 import 'core/widgets/custom_tab_bar.dart';
 import 'l10n/app_localizations.dart';
 
@@ -46,38 +45,7 @@ class InventraApp extends StatelessWidget {
           ],
           supportedLocales: const [Locale('en'), Locale('tr')],
           locale: appState.locale,
-          home:
-              !authProvider.isInitialized
-                  ? Scaffold(
-                    backgroundColor: const Color(0xFF111D2E),
-                    body: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Image.asset(
-                            'assets/images/InventraLogoAndroid.png',
-                            width: 96,
-                            height: 96,
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'INVENTRA',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  : !authProvider.hasCompletedOnboarding
-                  ? const OnboardingScreen()
-                  : authProvider.isAuthenticated
-                  ? const MainScreen()
-                  : LoginScreen(),
+          home: const SplashScreen(),
         );
       },
     );

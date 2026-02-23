@@ -6,6 +6,7 @@ import '../../../core/providers/app_state_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/space_card.dart';
+import '../../../core/widgets/space_card_shimmer.dart';
 import '../../../models/space.dart';
 import '../../storage/screens/storage_detail_screen.dart';
 import '../../storage/screens/add_storage_screen.dart';
@@ -130,221 +131,88 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: Consumer2<StorageProvider, AppStateProvider>(
           builder: (context, storageProvider, appState, child) {
-            if (storageProvider.isLoading) {
-              return _SkeletonLoader(isDark: isDark);
-            }
+            final sortedSpaces =
+                storageProvider.isLoading
+                    ? <Space>[]
+                    : _sortSpaces(storageProvider.spaces);
 
-            final sortedSpaces = _sortSpaces(storageProvider.spaces);
-
-            return CustomScrollView(
-              slivers: [
-                // Header
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Consumer<AuthProvider>(
-                          builder: (context, authProvider, child) {
-                            return Text(
-                              '${l10n.hello}, ${authProvider.smartName}',
-                              style: TextStyle(
-                                color:
-                                    isDark
-                                        ? AppColors.darkTextPrimary
-                                        : AppColors.lightTextPrimary,
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            );
-                          },
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) => const NotificationsScreen(),
-                              ),
-                            );
-                          },
-                          child: Stack(
-                            children: [
-                              Icon(
-                                Icons.notifications_outlined,
-                                color:
-                                    isDark
-                                        ? Colors.white
-                                        : AppColors.primaryNavy,
-                                size: 28,
-                              ),
-                              if (appState.unreadNotificationCount > 0)
-                                Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.error,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // My Spaces Header
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          l10n.mySpaces,
-                          style: TextStyle(
-                            color:
-                                isDark
-                                    ? AppColors.darkTextPrimary
-                                    : AppColors.lightTextPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => _showSortOptions(context, isDark, l10n),
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color:
-                                  isDark
-                                      ? AppColors.darkCard
-                                      : AppColors.lightCard,
-                              borderRadius: BorderRadius.circular(12),
-                              boxShadow:
-                                  isDark
-                                      ? null
-                                      : [
-                                        BoxShadow(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.08,
-                                          ),
-                                          blurRadius: 15,
-                                          spreadRadius: 0,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.arrow_upward,
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              child: CustomScrollView(
+                key: ValueKey<bool>(storageProvider.isLoading),
+                slivers: [
+                  // Header
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Consumer<AuthProvider>(
+                            builder: (context, authProvider, child) {
+                              return Text(
+                                '${l10n.hello}, ${authProvider.smartName}',
+                                style: TextStyle(
                                   color:
                                       isDark
-                                          ? Colors.white
-                                          : AppColors.primaryNavy,
-                                  size: 16,
+                                          ? AppColors.darkTextPrimary
+                                          : AppColors.lightTextPrimary,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                                const SizedBox(width: 2),
-                                Icon(
-                                  Icons.arrow_downward,
-                                  color:
-                                      isDark
-                                          ? Colors.white
-                                          : AppColors.primaryNavy,
-                                  size: 16,
-                                ),
-                              ],
-                            ),
+                              );
+                            },
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Spaces Grid
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  sliver: SliverGrid(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 16,
-                          crossAxisSpacing: 16,
-                          childAspectRatio: 0.95,
-                        ),
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (sortedSpaces.isEmpty) {
-                          if (index == 0) {
-                            return NewSpaceCard(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => const AddStorageScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          }
-                          return null;
-                        } else {
-                          if (index == 0) {
-                            return NewSpaceCard(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => const AddStorageScreen(),
-                                  ),
-                                );
-                              },
-                            );
-                          }
-                          final space = sortedSpaces[index - 1];
-                          return SpaceCard(
-                            space: space,
+                          GestureDetector(
                             onTap: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) =>
-                                          StorageDetailScreen(space: space),
+                                      (context) => const NotificationsScreen(),
                                 ),
                               );
                             },
-                          );
-                        }
-                      },
-                      childCount:
-                          sortedSpaces.isEmpty ? 1 : sortedSpaces.length + 1,
+                            child: Stack(
+                              children: [
+                                Icon(
+                                  Icons.notifications_outlined,
+                                  color:
+                                      isDark
+                                          ? Colors.white
+                                          : AppColors.primaryNavy,
+                                  size: 28,
+                                ),
+                                if (appState.unreadNotificationCount > 0)
+                                  Positioned(
+                                    right: 0,
+                                    top: 0,
+                                    child: Container(
+                                      width: 10,
+                                      height: 10,
+                                      decoration: const BoxDecoration(
+                                        color: AppColors.error,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
-                // Empty message
-                if (sortedSpaces.isEmpty)
+                  // My Spaces Header
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
-                      child: Column(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            l10n.noSpacesYet,
+                            l10n.mySpaces,
                             style: TextStyle(
                               color:
                                   isDark
@@ -353,28 +221,173 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                             ),
-                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.createFirstSpace,
-                            style: TextStyle(
-                              color:
-                                  isDark
-                                      ? AppColors.darkTextSecondary
-                                      : AppColors.lightTextSecondary,
-                              fontSize: 14,
+                          GestureDetector(
+                            onTap:
+                                () => _showSortOptions(context, isDark, l10n),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color:
+                                    isDark
+                                        ? AppColors.darkCard
+                                        : AppColors.lightCard,
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow:
+                                    isDark
+                                        ? null
+                                        : [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.08,
+                                            ),
+                                            blurRadius: 15,
+                                            spreadRadius: 0,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.arrow_upward,
+                                    color:
+                                        isDark
+                                            ? Colors.white
+                                            : AppColors.primaryNavy,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Icon(
+                                    Icons.arrow_downward,
+                                    color:
+                                        isDark
+                                            ? Colors.white
+                                            : AppColors.primaryNavy,
+                                    size: 16,
+                                  ),
+                                ],
+                              ),
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
                     ),
                   ),
 
-                // Bottom padding
-                const SliverToBoxAdapter(child: SizedBox(height: 100)),
-              ],
+                  // Spaces Grid
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverGrid(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 16,
+                            crossAxisSpacing: 16,
+                            childAspectRatio: 0.95,
+                          ),
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (storageProvider.isLoading) {
+                            return const SpaceCardShimmer();
+                          }
+
+                          if (sortedSpaces.isEmpty) {
+                            if (index == 0) {
+                              return NewSpaceCard(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => const AddStorageScreen(),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+                            return null;
+                          } else {
+                            if (index == 0) {
+                              return NewSpaceCard(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => const AddStorageScreen(),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
+                            final space = sortedSpaces[index - 1];
+                            return SpaceCard(
+                              space: space,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            StorageDetailScreen(space: space),
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                        },
+                        childCount:
+                            storageProvider.isLoading
+                                ? 6 // Show 6 shimmer cards
+                                : (sortedSpaces.isEmpty
+                                    ? 1
+                                    : sortedSpaces.length + 1),
+                      ),
+                    ),
+                  ),
+
+                  // Empty message
+                  if (!storageProvider.isLoading && sortedSpaces.isEmpty)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
+                        child: Column(
+                          children: [
+                            Text(
+                              l10n.noSpacesYet,
+                              style: TextStyle(
+                                color:
+                                    isDark
+                                        ? AppColors.darkTextPrimary
+                                        : AppColors.lightTextPrimary,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              l10n.createFirstSpace,
+                              style: TextStyle(
+                                color:
+                                    isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // Bottom padding
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                ],
+              ),
             );
           },
         ),
@@ -441,125 +454,4 @@ class _SortOption extends StatelessWidget {
   }
 }
 
-class _SkeletonLoader extends StatefulWidget {
-  final bool isDark;
-  const _SkeletonLoader({required this.isDark});
-
-  @override
-  State<_SkeletonLoader> createState() => _SkeletonLoaderState();
-}
-
-class _SkeletonLoaderState extends State<_SkeletonLoader>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat();
-    _animation = Tween<double>(
-      begin: -1,
-      end: 2,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, _) {
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header shimmer
-              _ShimmerBox(
-                width: 180,
-                height: 28,
-                isDark: widget.isDark,
-                animationValue: _animation.value,
-              ),
-              const SizedBox(height: 24),
-              _ShimmerBox(
-                width: 140,
-                height: 20,
-                isDark: widget.isDark,
-                animationValue: _animation.value,
-              ),
-              const SizedBox(height: 16),
-              // Grid of card skeletons
-              Expanded(
-                child: GridView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.85,
-                  ),
-                  itemCount: 4,
-                  itemBuilder: (context, index) {
-                    return _ShimmerBox(
-                      isDark: widget.isDark,
-                      animationValue: _animation.value,
-                      borderRadius: 16,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _ShimmerBox extends StatelessWidget {
-  final double? width;
-  final double? height;
-  final bool isDark;
-  final double animationValue;
-  final double borderRadius;
-
-  const _ShimmerBox({
-    this.width,
-    this.height,
-    required this.isDark,
-    required this.animationValue,
-    this.borderRadius = 8,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final baseColor =
-        isDark ? const Color(0xFF1E2A3A) : const Color(0xFFE8ECF0);
-    final highlightColor =
-        isDark ? const Color(0xFF2A3A4E) : const Color(0xFFF5F7FA);
-
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        gradient: LinearGradient(
-          begin: Alignment(animationValue - 1, 0),
-          end: Alignment(animationValue, 0),
-          colors: [baseColor, highlightColor, baseColor],
-          stops: const [0.0, 0.5, 1.0],
-        ),
-      ),
-    );
-  }
-}
+// _SkeletonLoader removed
